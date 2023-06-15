@@ -1,8 +1,8 @@
 # nb_drumcrow  
 caw caw caw  
 this is a norns mod  
-`nb` framework takes notes from scripts and plays different pseudoengines with them  
-`nb_drumcrow` is an nb pseudeoengine which turns each output of a monome crow into a drumcrow oscillator  
+`nb` is a voice library for Norns.  
+`nb_drumcrow` is turns each output of a monome crow into a drumcrow oscillator  
   
 download this like you would any other script  
 turn on the mod: go to system > mods > find nb_drumcrow, turn enc3 to the right until you see a +  
@@ -11,7 +11,7 @@ go to system > restart and then check the mods, it should have a dot to the left
 sometimes it's best to power on crow, power on norns, select script in that order  
 find a script that does nb sequencing  
 I made a test script called auspicetrainer but you can add nb to any sequencing script on norns  
-then select drumcrow from your nb pseudoengines  
+go to your params and select drumcrow from your nb voices  
 then press the on_off parameter to turn on the voice  
 in maiden there should be a message "drumcrow 1 engine ON"  
 then start playing notes by calling player:note_on() like you would for other nb voices  
