@@ -1,8 +1,8 @@
 # nb_drumcrow  
 caw caw caw  
 this is a norns mod  
-`nb` is a voice library for norns.  
-`nb_drumcrow` is turns each output of a monome crow into a drumcrow oscillator  
+`nb` is a note-playing [voice library](https://github.com/sixolet/nb) for norns.  
+`nb_drumcrow` is turns each output of a monome crow into a [drumcrow oscillator](https://github.com/entzmingerc/drumcrow)  
   
 1) download this like you would any other script  
 2) turn on the mod: go to system > mods > find nb_drumcrow, turn enc3 to the right until you see a +. this tells norns to load the mod at the next power ON  
