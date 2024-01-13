@@ -19,7 +19,7 @@ See [drumcrow](https://github.com/entzmingerc/drumcrow) on lines for documentati
 `ON/OFF` turns the engine on or off. It is ON by default. This will remove the output from the updating loop and set the amplitude to 0.  
 `synth_preset` selects between init, perc, noise, trigger, envelope, and scale presets. Press `load_preset` to load the selected preset.  
 
-## Presets  
+### Presets  
 - init: basic sine wave oscillator with decay envelope. Use for melodic synth stuff or as a starting point.  
 - perc: fast enveloped pitch sweeps for synth percussion sounds. Use for kicks by sending a midi note of like 30 and using this preset.  
 - noise: fast enveloped pitch sweeps using white noise synth model. Use for snares or hats.  
@@ -34,14 +34,12 @@ For explanation of `synth_shape`, `synth_model`, and the remaining drumcrow para
 # nb_drumcrow scripting example  
 This section is an example of how to support nb in a norns script.  
 
-To support nb in a norns script, refer to [nb](https://github.com/sixolet/nb) for the most up to date information. nb_drumcrow creates an nb player for each of the four outputs on crow. To add nb support in a norns script, the nb library needs to be included in the script `nb = include("lib/nb/lib/nb")`. In the init function, call `nb:init()` then `nb:add_param("nb_1", "nb_1")` to create a nb player selector parameter called "nb_1" or any name you'd like. Then call `nb:add_player_params()` to add all nb players to the nb player selector parameter. Go to "nb_1" in the parameter menu and select "drumcrow 1" as the player.  
-
-To trigger an nb voice, call the nb player's note_on() function. The following code looks up the player selector parameter "nb_1" and returns the player currently selected. Next, the note_on() function of the player is called and passed the midi note value 60 and velocity 5.  
+To support nb in a norns script, refer to [nb](https://github.com/sixolet/nb) for the most up to date information. nb_drumcrow creates an nb player for each of the four outputs on crow. Use `nb:add_param("nb_1", "nb_1")` to create a nb voice selector parameter called "nb_1" or any name you'd like. The following code looks up the player selector parameter "nb_1" and returns the player currently selected. Next, the note_on() function of the player is called and passed the midi note value 60 and velocity 5.  
 ```
 local player = params:lookup_param("nb_1"):get_player()
 player:note_on(60, 5)
 ``` 
-The above code will trigger a single note for one player. To play nb_drumcrow polyphonically using all 4 outputs of crow, create 4 player selector parameters (for example: nb_1, nb_2, nb_3, nb_4), then get each player and trigger the note_on() function on each player. Each nb_drumcrow player is monophonic, so it only plays one note at a time on a single output of crow.  
+The above code will trigger a single note for one player. To play nb_drumcrow polyphonically using all 4 outputs of crow, create 4 nb voice selector parameters (for example: nb_1, nb_2, nb_3, nb_4), set each to drumcrow 1, 2, 3, and 4, then get each player, then trigger the note_on() function on each player. Each nb_drumcrow player is monophonic, so it only plays one note at a time on a single output of crow.  
 
 # nb_drumcrow debugging
 Crow should be powered on before loading the norns script. If you're not hearing sound, try changing model and shape of the drumcrow oscillator to hopefully wake it up, CAW! If you crash crow and hear a constant tone, you'll have to turn off power to crow and turn it on again. If crow hasn't crashed, but won't stop audio, use the on/off switch to silence an output of crow.  
