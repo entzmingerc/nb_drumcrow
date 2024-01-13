@@ -31,6 +31,8 @@ Trigger, envelope, and scale presets require the "now" shape and "var_saw" synth
 For explanation of `synth_shape`, `synth_model`, and the remaining drumcrow parameters, please refer to [drumcrow](https://github.com/entzmingerc/drumcrow) documentation.  
 
 # nb_drumcrow scripting example  
+This section is an example of how to support nb in a norns script.  
+
 To support nb in a norns script, refer to [nb](https://github.com/sixolet/nb) for the most up to date information. nb_drumcrow creates an nb player for each of the four outputs on crow. To add nb support in a norns script, the nb library needs to be included in the script `nb = include("lib/nb/lib/nb")`. In the init function, call `nb:init()` then `nb:add_param("nb_1", "nb_1")` to create a nb player selector parameter called "nb_1" or any name you'd like. Then call `nb:add_player_params()` to add all nb players to the nb player selector parameter. Go to "nb_1" in the parameter menu and select "drumcrow 1" as the player.  
 
 To trigger an nb voice, call the nb player's note_on() function. The following code looks up the player selector parameter "nb_1" and returns the player currently selected. Next, the note_on() function of the player is called and passed the midi note value 60 and velocity 5.  
