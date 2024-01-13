@@ -6,8 +6,48 @@ dc_musicutil = require("musicutil")
 local mod = require 'core/mods'
 local dc_models = {'var_saw','bytebeat','noise','FMstep','ASLsine','ASLharmonic','bytebeat5'}
 local dc_shapes = {'"linear"','"sine"','"logarithmic"','"exponential"','"now"','"wait"','"over"','"under"','"rebound"'}
-local DC_NUM_PARAMS = 40
+
+-- local DC_NUM_PARAMS = 40
 local update_drumcrow_ID = {}
+
+local dc_preset_names = {'init', 'perc', 'noise', 'trigger', 'envelope'}
+dc_preset_values = {
+{ -- init, oscillator, decay envelope
+    mfreq = 1, note = 0, amp = 4, pw = 0, pw2 = 0, bit = 0, splash = 0,
+    amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 10,  amp_symmetry = -1, amp_curve = 2,  amp_type = 0,  amp_phase = 1, 
+    lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
+    note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 4, note_type = 0, note_phase = 1, 
+    mfreq_mod = 1, note_mod = 1, amp_mod = 1, pw_mod = 1, pw2_mod = 1, bit_mod = 1, splash_mod = 1,
+},
+{ -- perc, oscillator, fast pitch modulation envelope
+    mfreq = 1, note = 0, amp = 4, pw = 0.25, pw2 = 0, bit = 0, splash = 0,
+    amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 30.06,  amp_symmetry = -1, amp_curve = -4.3,  amp_type = 0,  amp_phase = 1, 
+    lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
+    note_mfreq = 0, note_note = 4.6, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 7.5, note_symmetry = -1, note_curve = 4, note_type = 0, note_phase = 1, 
+    mfreq_mod = 1, note_mod = 1, amp_mod = 1, pw_mod = 1, pw2_mod = 1, bit_mod = 1, splash_mod = 1,
+},
+{ -- noise, oscillator, requires "noise" model, fast amplitude cycle
+    mfreq = 1, note = 0, amp = 4, pw = 0.37, pw2 = 3.44, bit = 0, splash = 0,
+    amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 46.63,  amp_symmetry = -1, amp_curve = 2,  amp_type = 0,  amp_phase = 1, 
+    lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
+    note_mfreq = 0, note_note = 3, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 2.6, note_symmetry = -1, note_curve = 0.8, note_type = 0, note_phase = 1, 
+    mfreq_mod = 1, note_mod = 1, amp_mod = 1, pw_mod = 1, pw2_mod = 1, bit_mod = 1, splash_mod = 1,
+},
+{ -- CV trigger, requires "now" shape and "var_saw" model
+    mfreq = 1, note = 0, amp = -5, pw = -1, pw2 = 0, bit = 0, splash = 0,
+    amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 101.42,  amp_symmetry = -1, amp_curve = -5,  amp_type = 0,  amp_phase = 1, 
+    lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
+    note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 0, note_type = 0, note_phase = 1, 
+    mfreq_mod = 1, note_mod = 1, amp_mod = 1, pw_mod = 1, pw2_mod = 1, bit_mod = 1, splash_mod = 1,
+},
+{ -- CV decay envelope, requires "now" shape and "var_saw" model, use amp envelope parameters to control envelope shape
+    mfreq = 1, note = 0, amp = -5, pw = -1, pw2 = 0, bit = 0, splash = 0,
+    amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 10.11,  amp_symmetry = -1, amp_curve = 0,  amp_type = 0,  amp_phase = 1, 
+    lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
+    note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 0, note_type = 0, note_phase = 1, 
+    mfreq_mod = 1, note_mod = 1, amp_mod = 1, pw_mod = 1, pw2_mod = 1, bit_mod = 1, splash_mod = 1,
+},
+}
 local dc_names = {
     "mfreq", "note", "amp", "pw", "pw2", "bit", "splash",
     "amp_mfreq", "amp_note", "amp_amp", "amp_pw", "amp_pw2", "amp_bit", "amp_cycle", "amp_symmetry", "amp_curve", "amp_type", "amp_phase", 
@@ -15,17 +55,15 @@ local dc_names = {
     "note_mfreq", "note_note", "note_amp", "note_pw", "note_pw2", "note_bit", "note_cycle", "note_symmetry", "note_curve", "note_type", "note_phase",  
     "mfreq_mod", "note_mod", "amp_mod", "pw_mod", "pw2_mod", "bit_mod", "splash_mod"
 } -- only used to initialize parameters? do you need this?
-local dc_init = {
-    mfreq = 1, note = 0, amp = 4, pw = 0, pw2 = 0, bit = 0, splash = 0,
-    amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 10,  amp_symmetry = -1, amp_curve = 3,  amp_type = 0,  amp_phase = 1, 
-    lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 10,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
-    note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 4, note_type = 0, note_phase = 1, 
-    mfreq_mod = 1, note_mod = 1, amp_mod = 1, pw_mod = 1, pw2_mod = 1, bit_mod = 1, splash_mod = 1,
-} -- synth shape = 1, synth model = 1 when the param "initialize" is triggered
 
--- local function n(i, s)
---     return "drumcrow_" .. s .. "_" .. i
--- end
+-- local dc_preset_values[1] = {
+--     mfreq = 1, note = 0, amp = 4, pw = 0, pw2 = 0, bit = 0, splash = 0,
+--     amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 10,  amp_symmetry = -1, amp_curve = 2,  amp_type = 0,  amp_phase = 1, 
+--     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
+--     note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 4, note_type = 0, note_phase = 1, 
+--     mfreq_mod = 1, note_mod = 1, amp_mod = 1, pw_mod = 1, pw2_mod = 1, bit_mod = 1, splash_mod = 1,
+-- } -- synth shape = 1, synth model = 1 when the param "initialize" is triggered
+-- -- used in the preset function, can we read arrays from a txt file?
 
 function drumcrow_load_preset(i, properties)
     for k, v in pairs(properties) do
@@ -38,7 +76,6 @@ function drumcrow_load_preset(i, properties)
     end
 end
 
--- TO DO add to player? not sure where to put this, should it be local?
 function drumcrow_setup_synth(i, model, shape)
     shp = dc_shapes[shape]
         if model == 1 then crow.output[i].action = string.format("loop{to(dyn{amp=2}, dyn{cyc=1/440} * dyn{pw=1/2}, %s), to(0-dyn{amp=2}, dyn{cyc=1/440} * (1-dyn{pw=1/2}), %s)}", shp, shp)
@@ -55,66 +92,67 @@ function drumcrow_setup_synth(i, model, shape)
 end
 
 local function add_drumcrow_params(i)
-    params:add_group("drumcrow_group_"..i, "drumcrow voice "..i, 4 + 7 + 11 + 11 + 11 + 7)
+    params:add_group("drumcrow_group_"..i, "drumcrow voice "..i, 5 + 7 + 11 + 11 + 11 + 7)
     params:hide("drumcrow_group_"..i)
     params:add_trigger("drumcrow_on_off_"..i, "on_off")
-    params:add_trigger("drumcrow_initialize_"..i, "initialize")
+    params:add_option("drumcrow_synth_preset_"..i, "synth_preset", dc_preset_names, 1)
+    params:add_trigger("drumcrow_load_preset_"..i, "load_preset")
     params:add_option("drumcrow_synth_shape_"..i, "synth_shape", dc_shapes, 2)
-    params:add_option("drumcrow_synth_model_"..i, "synth_model", dc_models, 6) -- 4
+    params:add_option("drumcrow_synth_model_"..i, "synth_model", dc_models, 1) -- 5
 
     -- TO DO better way to set up parameters: table of control specs per parameter, for loop, lookup control spec and init values per parameter label
-    params:add_control("drumcrow_mfreq_"..i, "mfreq", controlspec.new(0.01,1,"lin",0.005, dc_init[dc_names[1]], "", 0.005, false))
-    params:add_control("drumcrow_note_"..i, "note", controlspec.new(0,127,"lin",0.01, dc_init[dc_names[2]]))
-    params:add_control("drumcrow_amp_"..i, "amp", controlspec.new(-5,5,"lin",0.01, dc_init[dc_names[3]]))
-    params:add_control("drumcrow_pw_"..i, "pw", controlspec.new(-1,1,"lin",0.0005, dc_init[dc_names[4]], "", 0.002, false))
-    params:add_control("drumcrow_pw2_"..i, "pw2", controlspec.new(-10,10,"lin",0.0005, dc_init[dc_names[5]], "", 0.002, false))
-    params:add_control("drumcrow_bit_"..i, "bit", controlspec.new(-10,10,"lin",0.01, dc_init[dc_names[6]], "", 0.005, false))
-    params:add_control("drumcrow_splash_"..i, "splash", controlspec.new(0,3,"lin",0.01, dc_init[dc_names[7]], "", 0.002, false)) -- 7
+    params:add_control("drumcrow_mfreq_"..i, "mfreq", controlspec.new(0.01,1,"lin",0.005, dc_preset_values[1][dc_names[1]], "", 0.005, false))
+    params:add_control("drumcrow_note_"..i, "note", controlspec.new(0,127,"lin",0.01, dc_preset_values[1][dc_names[2]]))
+    params:add_control("drumcrow_amp_"..i, "amp", controlspec.new(-5,5,"lin",0.01, dc_preset_values[1][dc_names[3]]))
+    params:add_control("drumcrow_pw_"..i, "pw", controlspec.new(-1,1,"lin",0.0005, dc_preset_values[1][dc_names[4]], "", 0.002, false))
+    params:add_control("drumcrow_pw2_"..i, "pw2", controlspec.new(-10,10,"lin",0.0005, dc_preset_values[1][dc_names[5]], "", 0.002, false))
+    params:add_control("drumcrow_bit_"..i, "bit", controlspec.new(-10,10,"lin",0.01, dc_preset_values[1][dc_names[6]], "", 0.005, false))
+    params:add_control("drumcrow_splash_"..i, "splash", controlspec.new(0,3,"lin",0.01, dc_preset_values[1][dc_names[7]], "", 0.002, false)) -- 7
 
-    params:add_control("drumcrow_amp_mfreq_"..i, "amp_mfreq", controlspec.new(-1,1,"lin",0.005, dc_init[dc_names[8]], "", 0.005, false))
-    params:add_control("drumcrow_amp_note_"..i, "amp_note", controlspec.new(-10,10,"lin",0.001, dc_init[dc_names[9]], "", 0.002, false))
-    params:add_control("drumcrow_amp_amp_"..i, "amp_amp", controlspec.new(-5,5,"lin",0.01, dc_init[dc_names[10]]))
-    params:add_control("drumcrow_amp_pw_"..i, "amp_pw", controlspec.new(-2,2,"lin",0.001, dc_init[dc_names[11]], "", 0.005, false))
-    params:add_control("drumcrow_amp_pw2_"..i, "amp_pw2", controlspec.new(-10,10,"lin",0.01, dc_init[dc_names[12]], "", 0.005, false))
-    params:add_control("drumcrow_amp_bit_"..i, "amp_bit", controlspec.new(-10,10,"lin",0.01, dc_init[dc_names[13]], "", 0.005, false))
-    params:add_control("drumcrow_amp_cycle_"..i, "amp_cycle", controlspec.new(0.1, 500, 'exp', 0, dc_init[dc_names[14]], "", 0.002, false))
-    params:add_control("drumcrow_amp_symmetry_"..i, "amp_symmetry", controlspec.new(-2,2,"lin",0.01, dc_init[dc_names[15]], "", 0.005, false))
-    params:add_control("drumcrow_amp_curve_"..i, "amp_curve", controlspec.new(-5,5,"lin",0.01, dc_init[dc_names[16]]))
-    params:add_control("drumcrow_amp_type_"..i, "amp_type", controlspec.new(0,1,"lin",0.01, dc_init[dc_names[17]], "", 1, false))
-    params:add_control("drumcrow_amp_phase_"..i, "amp_phase", controlspec.new(-1,1,"lin",0.0005, dc_init[dc_names[18]], "", 0.002, false)) -- 11
+    params:add_control("drumcrow_amp_mfreq_"..i, "amp_mfreq", controlspec.new(-1,1,"lin",0.005, dc_preset_values[1][dc_names[8]], "", 0.005, false))
+    params:add_control("drumcrow_amp_note_"..i, "amp_note", controlspec.new(-10,10,"lin",0.001, dc_preset_values[1][dc_names[9]], "", 0.002, false))
+    params:add_control("drumcrow_amp_amp_"..i, "amp_amp", controlspec.new(-5,5,"lin",0.01, dc_preset_values[1][dc_names[10]]))
+    params:add_control("drumcrow_amp_pw_"..i, "amp_pw", controlspec.new(-2,2,"lin",0.001, dc_preset_values[1][dc_names[11]], "", 0.005, false))
+    params:add_control("drumcrow_amp_pw2_"..i, "amp_pw2", controlspec.new(-10,10,"lin",0.01, dc_preset_values[1][dc_names[12]], "", 0.005, false))
+    params:add_control("drumcrow_amp_bit_"..i, "amp_bit", controlspec.new(-10,10,"lin",0.01, dc_preset_values[1][dc_names[13]], "", 0.005, false))
+    params:add_control("drumcrow_amp_cycle_"..i, "amp_cycle", controlspec.new(0.1, 500, 'exp', 0, dc_preset_values[1][dc_names[14]], "", 0.002, false))
+    params:add_control("drumcrow_amp_symmetry_"..i, "amp_symmetry", controlspec.new(-2,2,"lin",0.01, dc_preset_values[1][dc_names[15]], "", 0.005, false))
+    params:add_control("drumcrow_amp_curve_"..i, "amp_curve", controlspec.new(-5,5,"lin",0.01, dc_preset_values[1][dc_names[16]]))
+    params:add_control("drumcrow_amp_type_"..i, "amp_type", controlspec.new(0,1,"lin",0.01, dc_preset_values[1][dc_names[17]], "", 1, false))
+    params:add_control("drumcrow_amp_phase_"..i, "amp_phase", controlspec.new(-1,1,"lin",0.0005, dc_preset_values[1][dc_names[18]], "", 0.002, false)) -- 11
 
-    params:add_control("drumcrow_lfo_mfreq_"..i, "lfo_mfreq", controlspec.new(-1,1,"lin",0.005, dc_init[dc_names[19]], "", 0.005, false))
-    params:add_control("drumcrow_lfo_note_"..i, "lfo_note", controlspec.new(-10,10,"lin",0.001, dc_init[dc_names[20]], "", 0.002, false))
-    params:add_control("drumcrow_lfo_amp_"..i, "lfo_amp", controlspec.new(-5,5,"lin",0.01, dc_init[dc_names[21]]))
-    params:add_control("drumcrow_lfo_pw_"..i, "lfo_pw", controlspec.new(-2,2,"lin",0.001, dc_init[dc_names[22]], "", 0.005, false))
-    params:add_control("drumcrow_lfo_pw2_"..i, "lfo_pw2", controlspec.new(-10,10,"lin",0.01, dc_init[dc_names[23]], "", 0.005, false))
-    params:add_control("drumcrow_lfo_bit_"..i, "lfo_bit", controlspec.new(-10,10,"lin",0.01, dc_init[dc_names[24]], "", 0.005, false))
-    params:add_control("drumcrow_lfo_cycle_"..i, "lfo_cycle", controlspec.new(0.1, 500, 'exp', 0, dc_init[dc_names[25]], "", 0.002, false))
-    params:add_control("drumcrow_lfo_symmetry_"..i, "lfo_symmetry", controlspec.new(-2,2,"lin",0.01, dc_init[dc_names[26]], "", 0.005, false))
-    params:add_control("drumcrow_lfo_curve_"..i, "lfo_curve", controlspec.new(-10,10,"lin",0.01, dc_init[dc_names[27]]))
-    params:add_control("drumcrow_lfo_type_"..i, "lfo_type", controlspec.new(0,1,"lin",0.01, dc_init[dc_names[28]], "", 1, false))
-    params:add_control("drumcrow_lfo_phase_"..i, "lfo_phase", controlspec.new(-1,1,"lin",0.0005, dc_init[dc_names[29]], "", 0.002, false)) -- 11
+    params:add_control("drumcrow_lfo_mfreq_"..i, "lfo_mfreq", controlspec.new(-1,1,"lin",0.005, dc_preset_values[1][dc_names[19]], "", 0.005, false))
+    params:add_control("drumcrow_lfo_note_"..i, "lfo_note", controlspec.new(-10,10,"lin",0.001, dc_preset_values[1][dc_names[20]], "", 0.002, false))
+    params:add_control("drumcrow_lfo_amp_"..i, "lfo_amp", controlspec.new(-5,5,"lin",0.01, dc_preset_values[1][dc_names[21]]))
+    params:add_control("drumcrow_lfo_pw_"..i, "lfo_pw", controlspec.new(-2,2,"lin",0.001, dc_preset_values[1][dc_names[22]], "", 0.005, false))
+    params:add_control("drumcrow_lfo_pw2_"..i, "lfo_pw2", controlspec.new(-10,10,"lin",0.01, dc_preset_values[1][dc_names[23]], "", 0.005, false))
+    params:add_control("drumcrow_lfo_bit_"..i, "lfo_bit", controlspec.new(-10,10,"lin",0.01, dc_preset_values[1][dc_names[24]], "", 0.005, false))
+    params:add_control("drumcrow_lfo_cycle_"..i, "lfo_cycle", controlspec.new(0.1, 500, 'exp', 0, dc_preset_values[1][dc_names[25]], "", 0.002, false))
+    params:add_control("drumcrow_lfo_symmetry_"..i, "lfo_symmetry", controlspec.new(-2,2,"lin",0.01, dc_preset_values[1][dc_names[26]], "", 0.005, false))
+    params:add_control("drumcrow_lfo_curve_"..i, "lfo_curve", controlspec.new(-10,10,"lin",0.01, dc_preset_values[1][dc_names[27]]))
+    params:add_control("drumcrow_lfo_type_"..i, "lfo_type", controlspec.new(0,1,"lin",0.01, dc_preset_values[1][dc_names[28]], "", 1, false))
+    params:add_control("drumcrow_lfo_phase_"..i, "lfo_phase", controlspec.new(-1,1,"lin",0.0005, dc_preset_values[1][dc_names[29]], "", 0.002, false)) -- 11
 
-    params:add_control("drumcrow_note_mfreq_"..i, "note_mfreq", controlspec.new(-1,1,"lin",0.005, dc_init[dc_names[30]], "", 0.005, false))
-    params:add_control("drumcrow_note_note_"..i, "note_note", controlspec.new(-10,10,"lin",0.001, dc_init[dc_names[31]], "", 0.002, false))
-    params:add_control("drumcrow_note_amp_"..i, "note_amp", controlspec.new(-5,5,"lin",0.01, dc_init[dc_names[32]]))
-    params:add_control("drumcrow_note_pw_"..i, "note_pw", controlspec.new(-2,2,"lin",0.001, dc_init[dc_names[33]], "", 0.005, false))
-    params:add_control("drumcrow_note_pw2_"..i, "note_pw2", controlspec.new(-10,10,"lin",0.01, dc_init[dc_names[34]], "", 0.005, false))
-    params:add_control("drumcrow_note_bit_"..i, "note_bit", controlspec.new(-10,10,"lin",0.01, dc_init[dc_names[35]], "", 0.005, false))
-    params:add_control("drumcrow_note_cycle_"..i, "note_cycle", controlspec.new(0.1, 500, 'exp', 0, dc_init[dc_names[36]], "", 0.002, false))
-    params:add_control("drumcrow_note_symmetry_"..i, "note_symmetry", controlspec.new(-2,2,"lin",0.01, dc_init[dc_names[37]], "", 0.005, false))
-    params:add_control("drumcrow_note_curve_"..i, "note_curve", controlspec.new(-10,10,"lin",0.01, dc_init[dc_names[38]]))
-    params:add_control("drumcrow_note_type_"..i, "note_type", controlspec.new(0,1,"lin",0.01, dc_init[dc_names[39]], "", 1, false)) 
-    params:add_control("drumcrow_note_phase_"..i, "note_phase", controlspec.new(-1,1,"lin",0.0005, dc_init[dc_names[40]], "", 0.002, false)) -- 11
+    params:add_control("drumcrow_note_mfreq_"..i, "note_mfreq", controlspec.new(-1,1,"lin",0.005, dc_preset_values[1][dc_names[30]], "", 0.005, false))
+    params:add_control("drumcrow_note_note_"..i, "note_note", controlspec.new(-10,10,"lin",0.001, dc_preset_values[1][dc_names[31]], "", 0.002, false))
+    params:add_control("drumcrow_note_amp_"..i, "note_amp", controlspec.new(-5,5,"lin",0.01, dc_preset_values[1][dc_names[32]]))
+    params:add_control("drumcrow_note_pw_"..i, "note_pw", controlspec.new(-2,2,"lin",0.001, dc_preset_values[1][dc_names[33]], "", 0.005, false))
+    params:add_control("drumcrow_note_pw2_"..i, "note_pw2", controlspec.new(-10,10,"lin",0.01, dc_preset_values[1][dc_names[34]], "", 0.005, false))
+    params:add_control("drumcrow_note_bit_"..i, "note_bit", controlspec.new(-10,10,"lin",0.01, dc_preset_values[1][dc_names[35]], "", 0.005, false))
+    params:add_control("drumcrow_note_cycle_"..i, "note_cycle", controlspec.new(0.1, 500, 'exp', 0, dc_preset_values[1][dc_names[36]], "", 0.002, false))
+    params:add_control("drumcrow_note_symmetry_"..i, "note_symmetry", controlspec.new(-2,2,"lin",0.01, dc_preset_values[1][dc_names[37]], "", 0.005, false))
+    params:add_control("drumcrow_note_curve_"..i, "note_curve", controlspec.new(-10,10,"lin",0.01, dc_preset_values[1][dc_names[38]]))
+    params:add_control("drumcrow_note_type_"..i, "note_type", controlspec.new(0,1,"lin",0.01, dc_preset_values[1][dc_names[39]], "", 1, false)) 
+    params:add_control("drumcrow_note_phase_"..i, "note_phase", controlspec.new(-1,1,"lin",0.0005, dc_preset_values[1][dc_names[40]], "", 0.002, false)) -- 11
 
     -- external modulation
-    params:add_control("drumcrow_mfreq_mod_"..i, "mfreq_mod", controlspec.new(0, 1, "lin", 0, dc_init[dc_names[41]]))
-    params:add_control("drumcrow_note_mod_"..i, "note_mod", controlspec.new(0, 1, "lin", 0, dc_init[dc_names[42]]))
-    params:add_control("drumcrow_amp_mod_"..i, "amp_mod", controlspec.new(0, 1, "lin", 0, dc_init[dc_names[43]]))
-    params:add_control("drumcrow_pw_mod_"..i, "pw_mod", controlspec.new(0, 1, "lin", 0, dc_init[dc_names[44]]))
-    params:add_control("drumcrow_pw2_mod_"..i, "pw2_mod", controlspec.new(0, 1, "lin", 0, dc_init[dc_names[45]]))
-    params:add_control("drumcrow_bit_mod_"..i, "bit_mod", controlspec.new(0, 1, "lin", 0, dc_init[dc_names[46]]))
-    params:add_control("drumcrow_splash_mod_"..i, "splash_mod", controlspec.new(0, 1, "lin", 0, dc_init[dc_names[47]])) -- 7
+    params:add_control("drumcrow_mfreq_mod_"..i, "mfreq_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[41]]))
+    params:add_control("drumcrow_note_mod_"..i, "note_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[42]]))
+    params:add_control("drumcrow_amp_mod_"..i, "amp_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[43]]))
+    params:add_control("drumcrow_pw_mod_"..i, "pw_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[44]]))
+    params:add_control("drumcrow_pw2_mod_"..i, "pw2_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[45]]))
+    params:add_control("drumcrow_bit_mod_"..i, "bit_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[46]]))
+    params:add_control("drumcrow_splash_mod_"..i, "splash_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[47]])) -- 7
 
     -- params:hide("drumcrow_mfreq_mod")
     -- params:hide("drumcrow_note_mod")
@@ -129,14 +167,12 @@ local function add_drumcrow_params(i)
     params:set_action("drumcrow_on_off_"..i, function()
         if update_drumcrow_ID[i] == nil then
             update_drumcrow_start(i) 
-            print("drumcrow "..i.." engine ON")
         else
             update_drumcrow_stop(i)
-            print("drumcrow "..i.." engine OFF")
         end
     end)
-    params:set_action("drumcrow_initialize_"..i, function() 
-        drumcrow_load_preset(i, dc_init)
+    params:set_action("drumcrow_load_preset_"..i, function() 
+        drumcrow_load_preset(i, dc_preset_values[params:get("drumcrow_synth_preset_"..i)])
     end)
     params:set_action("drumcrow_synth_shape_"..i, function(s)
         drumcrow_setup_synth(i, params:get("drumcrow_synth_model_"..i), s) end)
@@ -144,24 +180,23 @@ local function add_drumcrow_params(i)
         drumcrow_setup_synth(i, s, params:get("drumcrow_synth_shape_"..i)) end)
 end
 
--- TODO add to player?
 function update_drumcrow_start(i)
     if update_drumcrow_ID[i] == nil then
         local dc_update_time = 0.006
         update_drumcrow_ID[i] = clock.run(update_drumcrow, dc_update_time, i)
+        print("drumcrow "..i.." engine ON")
     end
 end
 
--- TODO add to player?
 function update_drumcrow_stop(i)
     if update_drumcrow_ID[i] ~= nil then
         clock.cancel(update_drumcrow_ID[i])
         update_drumcrow_ID[i] = nil
         crow.output[i].dyn.amp = 0 -- should mute any model
+        print("drumcrow "..i.." engine OFF")
     end
 end
 
--- TODO add to player?
 function update_drumcrow(dc_update_time, i)
     -- phase accumulation, location inside envelope /\, returns -1 ... +1
     local function acc(phase, freq, sec, looping)
@@ -258,7 +293,7 @@ function add_drumcrow_player(i)
         if update_drumcrow_ID[i] ~= nil then
             clock.cancel(update_drumcrow_ID[i])
             update_drumcrow_ID[i] = nil
-            crow.output[i].dyn.amp = 0 -- 0 amp should mute every model
+            crow.output[i].dyn.amp = 0 -- should mute itself
         end
     end
     
@@ -297,10 +332,10 @@ function add_drumcrow_player(i)
         print("drumcrow "..i.." note on triggered")
     end
 
-    -- midi note_off, pass for perc style?
     function player:note_off(note)
-        crow.output[i].dyn.amp = 0
-        params:set("drumcrow_amp_"..i, 0)
+        -- I think I just want note_on() and stop_all() as a backup, it's an AD envelope, not ASR
+        -- crow.output[i].dyn.amp = 0
+        -- params:set("drumcrow_amp_"..i, 0)
     end
 
     function player:add_params()
