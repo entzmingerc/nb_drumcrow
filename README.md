@@ -24,7 +24,7 @@ Presets:
 - noise: fast enveloped pitch sweeps using white noise synth model. Use for snares or hats.  
 - trigger: CV trigger output. Use to output triggers to modular synths. Adjust amplitude envelope parameters to shape output voltage level, trigger length, etc.  
 - envelope: CV envelope output. Triggers voltage envelope. Adjust amplitude envelope parameters to shape output level, curve, rise/fall time, etc.  
-- scale: Quantized CV output. Uses `bit` to quantize output voltage for 1 v/oct inputs. Adjust `bit` to browse different quantization divisions. Adjust all the modulation sources and amplitude parameters (amp_amp, lfo_amp, note_amp) to combine everything into a quantized voltage sequence. Turns the CV envelope mode into a strange arpeggiator.  
+- scale: Quantized CV output. Uses `bit` to quantize output voltage to 12 sections per 1V for 1 v/oct inputs. Adjust `bit` slightly to browse different quantization divisions. Adjust all the modulation sources and amplitude parameters (amp_amp, lfo_amp, note_amp) to combine everything into a quantized voltage sequence. Turns the CV envelope mode into a strange arpeggiator.  
 
 Trigger, envelope, and scale presets require the "now" shape and "var_saw" synth model to work as expected, but feel free to experiment.  
 
