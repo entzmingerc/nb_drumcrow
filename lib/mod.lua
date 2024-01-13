@@ -6,74 +6,88 @@ dc_musicutil = require("musicutil")
 local mod = require 'core/mods'
 local dc_models = {'var_saw','bytebeat','noise','FMstep','ASLsine','ASLharmonic','bytebeat5'}
 local dc_shapes = {'"linear"','"sine"','"logarithmic"','"exponential"','"now"','"wait"','"over"','"under"','"rebound"'}
-
--- local DC_NUM_PARAMS = 40
 local update_drumcrow_ID = {}
+local dc_preset_names = {'init', 'perc', 'noise', 'trigger', 'envelope', 'scale'}
 
-local dc_preset_names = {'init', 'perc', 'noise', 'trigger', 'envelope'}
+-- "mfreq_mod", "note_mod", "amp_mod", "pw_mod", "pw2_mod", "bit_mod", "splash_mod" TO DO possibly
 dc_preset_values = {
 { -- init, oscillator, decay envelope
-    mfreq = 1, note = 0, amp = 4, pw = 0, pw2 = 0, bit = 0, splash = 0,
+    mfreq = 1, note = 0, amp = 0, pw = 0, pw2 = 0, bit = 0, splash = 0,
     amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 10,  amp_symmetry = -1, amp_curve = 2,  amp_type = 0,  amp_phase = 1, 
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 4, note_type = 0, note_phase = 1, 
-    mfreq_mod = 1, note_mod = 1, amp_mod = 1, pw_mod = 1, pw2_mod = 1, bit_mod = 1, splash_mod = 1,
 },
 { -- perc, oscillator, fast pitch modulation envelope
-    mfreq = 1, note = 0, amp = 4, pw = 0.25, pw2 = 0, bit = 0, splash = 0,
+    mfreq = 1, note = 0, amp = 0, pw = 0.15, pw2 = 0, bit = 0, splash = 0,
     amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 30.06,  amp_symmetry = -1, amp_curve = -4.3,  amp_type = 0,  amp_phase = 1, 
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
-    note_mfreq = 0, note_note = 4.6, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 7.5, note_symmetry = -1, note_curve = 4, note_type = 0, note_phase = 1, 
-    mfreq_mod = 1, note_mod = 1, amp_mod = 1, pw_mod = 1, pw2_mod = 1, bit_mod = 1, splash_mod = 1,
+    note_mfreq = 0, note_note = 3, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 7.5, note_symmetry = -1, note_curve = 4, note_type = 0, note_phase = 1, 
 },
 { -- noise, oscillator, requires "noise" model, fast amplitude cycle
-    mfreq = 1, note = 0, amp = 4, pw = 0.37, pw2 = 3.44, bit = 0, splash = 0,
+    mfreq = 1, note = 0, amp = 0, pw = 0.37, pw2 = 3.44, bit = 0, splash = 0,
     amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 46.63,  amp_symmetry = -1, amp_curve = 2,  amp_type = 0,  amp_phase = 1, 
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 3, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 2.6, note_symmetry = -1, note_curve = 0.8, note_type = 0, note_phase = 1, 
-    mfreq_mod = 1, note_mod = 1, amp_mod = 1, pw_mod = 1, pw2_mod = 1, bit_mod = 1, splash_mod = 1,
 },
 { -- CV trigger, requires "now" shape and "var_saw" model
     mfreq = 1, note = 0, amp = -5, pw = -1, pw2 = 0, bit = 0, splash = 0,
     amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 101.42,  amp_symmetry = -1, amp_curve = -5,  amp_type = 0,  amp_phase = 1, 
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 0, note_type = 0, note_phase = 1, 
-    mfreq_mod = 1, note_mod = 1, amp_mod = 1, pw_mod = 1, pw2_mod = 1, bit_mod = 1, splash_mod = 1,
 },
 { -- CV decay envelope, requires "now" shape and "var_saw" model, use amp envelope parameters to control envelope shape
     mfreq = 1, note = 0, amp = -5, pw = -1, pw2 = 0, bit = 0, splash = 0,
     amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 10.11,  amp_symmetry = -1, amp_curve = 0,  amp_type = 0,  amp_phase = 1, 
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 0, note_type = 0, note_phase = 1, 
-    mfreq_mod = 1, note_mod = 1, amp_mod = 1, pw_mod = 1, pw2_mod = 1, bit_mod = 1, splash_mod = 1,
+},
+{ -- scale, requires "now" shape and "var_saw" model, specific calculated bit crush value to do chromatic quantizing of output (bit = 0.055) use with v/oct input and slow LFOs
+    mfreq = 1, note = 0, amp = -5, pw = -1, pw2 = 0, bit = 0.0555555, splash = 0,
+    amp_mfreq = 0,  amp_note = 0,  amp_amp = 0.2,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 6.27,  amp_symmetry = -1, amp_curve = 0,  amp_type = 0,  amp_phase = 1, 
+    lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0.4,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 0.75,  lfo_symmetry = 0,  lfo_curve = -1,  lfo_type = 1,  lfo_phase = -1, 
+    note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 0, note_type = 0, note_phase = 1, 
 },
 }
+
 local dc_names = {
     "mfreq", "note", "amp", "pw", "pw2", "bit", "splash",
     "amp_mfreq", "amp_note", "amp_amp", "amp_pw", "amp_pw2", "amp_bit", "amp_cycle", "amp_symmetry", "amp_curve", "amp_type", "amp_phase", 
     "lfo_mfreq", "lfo_note", "lfo_amp", "lfo_pw", "lfo_pw2", "lfo_bit", "lfo_cycle", "lfo_symmetry", "lfo_curve", "lfo_type", "lfo_phase", 
-    "note_mfreq", "note_note", "note_amp", "note_pw", "note_pw2", "note_bit", "note_cycle", "note_symmetry", "note_curve", "note_type", "note_phase",  
-    "mfreq_mod", "note_mod", "amp_mod", "pw_mod", "pw2_mod", "bit_mod", "splash_mod"
+    "note_mfreq", "note_note", "note_amp", "note_pw", "note_pw2", "note_bit", "note_cycle", "note_symmetry", "note_curve", "note_type", "note_phase",
 } -- only used to initialize parameters? do you need this?
-
--- local dc_preset_values[1] = {
---     mfreq = 1, note = 0, amp = 4, pw = 0, pw2 = 0, bit = 0, splash = 0,
---     amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 10,  amp_symmetry = -1, amp_curve = 2,  amp_type = 0,  amp_phase = 1, 
---     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
---     note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 4, note_type = 0, note_phase = 1, 
---     mfreq_mod = 1, note_mod = 1, amp_mod = 1, pw_mod = 1, pw2_mod = 1, bit_mod = 1, splash_mod = 1,
--- } -- synth shape = 1, synth model = 1 when the param "initialize" is triggered
--- -- used in the preset function, can we read arrays from a txt file?
 
 function drumcrow_load_preset(i, properties)
     for k, v in pairs(properties) do
-            if k == "amp_phase" then params:set("drumcrow_amp_phase_"..i, 1)
-        elseif k == "lfo_phase" then params:set("drumcrow_lfo_phase_"..i, -1)
+            if k == "amp_phase"  then params:set("drumcrow_amp_phase_"..i, 1)
+        elseif k == "lfo_phase"  then params:set("drumcrow_lfo_phase_"..i, -1)
         elseif k == "note_phase" then params:set("drumcrow_note_phase_"..i, 1)
         else
             params:set("drumcrow_"..k.."_"..i, v)
         end
     end
+    preset_selection = params:get("drumcrow_synth_preset_"..i)
+        if preset_selection == 1 then
+        preset_model = 1
+        preset_shape = 2 -- init, var_saw, sine
+    elseif preset_selection == 2 then
+        preset_model = 1
+        preset_shape = 9 -- perc, var_saw, rebound
+    elseif preset_selection == 3 then
+        preset_model = 3
+        preset_shape = 1 -- noise, noise, linear
+    elseif preset_selection == 4 then
+        preset_model = 1
+        preset_shape = 5 -- trigger, var_saw, now
+    elseif preset_selection == 5 then
+        preset_model = 1
+        preset_shape = 5 -- trigger, var_saw, now
+    elseif preset_selection == 6 then
+        preset_model = 1
+        preset_shape = 5 -- trigger, var_saw, now
+    end
+    params:set("drumcrow_synth_model_"..i, preset_model, false)
+    params:set("drumcrow_synth_shape_"..i, preset_shape, false)
+    drumcrow_setup_synth(i, preset_model, preset_shape)
 end
 
 function drumcrow_setup_synth(i, model, shape)
@@ -92,7 +106,7 @@ function drumcrow_setup_synth(i, model, shape)
 end
 
 local function add_drumcrow_params(i)
-    params:add_group("drumcrow_group_"..i, "drumcrow voice "..i, 5 + 7 + 11 + 11 + 11 + 7)
+    params:add_group("drumcrow_group_"..i, "drumcrow voice "..i, 5 + 7 + 11 + 11 + 11)
     params:hide("drumcrow_group_"..i)
     params:add_trigger("drumcrow_on_off_"..i, "on_off")
     params:add_option("drumcrow_synth_preset_"..i, "synth_preset", dc_preset_names, 1)
@@ -106,7 +120,7 @@ local function add_drumcrow_params(i)
     params:add_control("drumcrow_amp_"..i, "amp", controlspec.new(-5,5,"lin",0.01, dc_preset_values[1][dc_names[3]]))
     params:add_control("drumcrow_pw_"..i, "pw", controlspec.new(-1,1,"lin",0.0005, dc_preset_values[1][dc_names[4]], "", 0.002, false))
     params:add_control("drumcrow_pw2_"..i, "pw2", controlspec.new(-10,10,"lin",0.0005, dc_preset_values[1][dc_names[5]], "", 0.002, false))
-    params:add_control("drumcrow_bit_"..i, "bit", controlspec.new(-10,10,"lin",0.01, dc_preset_values[1][dc_names[6]], "", 0.005, false))
+    params:add_control("drumcrow_bit_"..i, "bit", controlspec.new(-10,10,"lin",0.0000005, dc_preset_values[1][dc_names[6]], "", 0.001, false))
     params:add_control("drumcrow_splash_"..i, "splash", controlspec.new(0,3,"lin",0.01, dc_preset_values[1][dc_names[7]], "", 0.002, false)) -- 7
 
     params:add_control("drumcrow_amp_mfreq_"..i, "amp_mfreq", controlspec.new(-1,1,"lin",0.005, dc_preset_values[1][dc_names[8]], "", 0.005, false))
@@ -145,14 +159,14 @@ local function add_drumcrow_params(i)
     params:add_control("drumcrow_note_type_"..i, "note_type", controlspec.new(0,1,"lin",0.01, dc_preset_values[1][dc_names[39]], "", 1, false)) 
     params:add_control("drumcrow_note_phase_"..i, "note_phase", controlspec.new(-1,1,"lin",0.0005, dc_preset_values[1][dc_names[40]], "", 0.002, false)) -- 11
 
-    -- external modulation
-    params:add_control("drumcrow_mfreq_mod_"..i, "mfreq_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[41]]))
-    params:add_control("drumcrow_note_mod_"..i, "note_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[42]]))
-    params:add_control("drumcrow_amp_mod_"..i, "amp_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[43]]))
-    params:add_control("drumcrow_pw_mod_"..i, "pw_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[44]]))
-    params:add_control("drumcrow_pw2_mod_"..i, "pw2_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[45]]))
-    params:add_control("drumcrow_bit_mod_"..i, "bit_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[46]]))
-    params:add_control("drumcrow_splash_mod_"..i, "splash_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[47]])) -- 7
+    -- -- external modulation TO DO?
+    -- params:add_control("drumcrow_mfreq_mod_"..i, "mfreq_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[41]]))
+    -- params:add_control("drumcrow_note_mod_"..i, "note_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[42]]))
+    -- params:add_control("drumcrow_amp_mod_"..i, "amp_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[43]]))
+    -- params:add_control("drumcrow_pw_mod_"..i, "pw_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[44]]))
+    -- params:add_control("drumcrow_pw2_mod_"..i, "pw2_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[45]]))
+    -- params:add_control("drumcrow_bit_mod_"..i, "bit_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[46]]))
+    -- params:add_control("drumcrow_splash_mod_"..i, "splash_mod", controlspec.new(0, 1, "lin", 0, dc_preset_values[1][dc_names[47]])) -- 7
 
     -- params:hide("drumcrow_mfreq_mod")
     -- params:hide("drumcrow_note_mod")
@@ -178,6 +192,14 @@ local function add_drumcrow_params(i)
         drumcrow_setup_synth(i, params:get("drumcrow_synth_model_"..i), s) end)
     params:set_action("drumcrow_synth_model_"..i, function(s)
         drumcrow_setup_synth(i, s, params:get("drumcrow_synth_shape_"..i)) end)
+    
+    -- if there are still clocks running from previous script loads, stop them, then turn on engine
+    if update_drumcrow_ID[i] == nil then
+        update_drumcrow_start(i) 
+    else
+        update_drumcrow_stop(i)
+        update_drumcrow_start(i) 
+    end
 end
 
 function update_drumcrow_start(i)
@@ -205,7 +227,7 @@ function update_drumcrow(dc_update_time, i)
         return phase
     end
     
-    -- phase in, value out /\, returns -1 ... +1 (uhhh I think)
+    -- phase in, value out /\, returns -1 ... +1
     local function peak(ph, pw, curve)
         local value = ph < pw and (1 + ph) / (1 + pw) or ph > pw and (1 - ph) / (1 - pw) or 1
         value = value ^ (2 ^ curve)
@@ -232,13 +254,13 @@ function update_drumcrow(dc_update_time, i)
         local sploosh  = params:get("drumcrow_splash_"..i)
          
         -- calculate external modulation, sequence the attenuation of internal values for now, _mod range 0 ... 1
-        max_freq = max_freq * params:get("drumcrow_mfreq_mod_"..i)
-        note_up = note_up * params:get("drumcrow_note_mod_"..i)
-        volume = volume * params:get("drumcrow_amp_mod_"..i)
-        pw = pw * params:get("drumcrow_pw_mod_"..i)
-        pw2 = pw2 * params:get("drumcrow_pw2_mod_"..i)
-        bitz = bitz * params:get("drumcrow_bit_mod_"..i)
-        sploosh = sploosh * params:get("drumcrow_splash_mod_"..i)
+        -- max_freq = max_freq * params:get("drumcrow_mfreq_mod_"..i)
+        -- note_up = note_up * params:get("drumcrow_note_mod_"..i)
+        -- volume = volume * params:get("drumcrow_amp_mod_"..i)
+        -- pw = pw * params:get("drumcrow_pw_mod_"..i)
+        -- pw2 = pw2 * params:get("drumcrow_pw2_mod_"..i)
+        -- bitz = bitz * params:get("drumcrow_bit_mod_"..i)
+        -- sploosh = sploosh * params:get("drumcrow_splash_mod_"..i)
 
         -- set frequency on crow
         max_freq = math.min(math.max(max_freq, 0.01), 1)
@@ -249,8 +271,11 @@ function update_drumcrow(dc_update_time, i)
         crow.output[i].dyn.amp = math.min(math.max(volume, -10), 10)
         
         -- set bitcrush on crow
-        if bitz > 0 then crow.output[i].scale({}, 2, bitz * 3) else crow.output[i].scale('none') end
-        
+        if bitz > 0 then 
+            crow.output[i].scale({}, 2, bitz * 3) 
+        else
+            crow.output[i].scale('none') 
+        end
         -- set pulse width (depends on model) on crow
         pw = (math.min(math.max(pw, -1), 1) + 1) / 2
         mdl = params:get("drumcrow_synth_model_"..i)
@@ -297,9 +322,6 @@ function add_drumcrow_player(i)
         end
     end
     
-    -- do I need this? not used?
-    -- should I use modulate(val), modulate(key, val), or modulate_note(note, key, val) and ignore note?
-    -- I need a function with (key, value), using modulate_note(), check with sixolet
     function player:modulate(val)
         self.timbre_modulation = val
     end
@@ -309,12 +331,13 @@ function add_drumcrow_player(i)
             name = "drumcrow "..i,
             supports_bend = false,
             supports_slew = false,
-            modulate_description = "first row osc params",
-            note_mod_targets = {"mfreq_mod", "note_mod", "amp_mod", "pw_mod", "pw2_mod", "bit_mod", "splash_mod"},
+            modulate_description = "none",
+            note_mod_targets = {"no targets"},
+            -- note_mod_targets = {"mfreq_mod", "note_mod", "amp_mod", "pw_mod", "pw2_mod", "bit_mod", "splash_mod"},
         }
     end
     
-    -- ignores note, just uses key & value, currently 0 to 1
+    -- ignores note, just uses key & value
     function player:modulate_note(note, key, value)
         params:set("drumcrow_"..key.."_"..i, value)
     end
@@ -329,11 +352,11 @@ function add_drumcrow_player(i)
         if params:get("drumcrow_note_phase_"..i) >= params:get("drumcrow_note_symmetry_"..i) then params:set("drumcrow_note_phase_"..i, -1) end
         params:set("drumcrow_amp_"..i,  (vel/127)  * 20 - 10)
         params:set("drumcrow_note_"..i, note)
-        print("drumcrow "..i.." note on triggered")
+        -- print("drumcrow "..i.." note on triggered")
     end
 
     function player:note_off(note)
-        -- I think I just want note_on() and stop_all() as a backup, it's an AD envelope, not ASR
+        -- it's an AD envelope, not ASR, uncomment to add a note_off if desired
         -- crow.output[i].dyn.amp = 0
         -- params:set("drumcrow_amp_"..i, 0)
     end
