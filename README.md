@@ -18,7 +18,8 @@ See [drumcrow](https://github.com/entzmingerc/drumcrow) on lines for documentati
 
 `ON/OFF` turns the engine on or off. It is ON by default. This will remove the output from the updating loop and set the amplitude to 0.  
 `synth_preset` selects between init, perc, noise, trigger, envelope, and scale presets. Press `load_preset` to load the selected preset.  
-Presets:  
+
+## Presets  
 - init: basic sine wave oscillator with decay envelope. Use for melodic synth stuff or as a starting point.  
 - perc: fast enveloped pitch sweeps for synth percussion sounds. Use for kicks by sending a midi note of like 30 and using this preset.  
 - noise: fast enveloped pitch sweeps using white noise synth model. Use for snares or hats.  
