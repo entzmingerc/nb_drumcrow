@@ -1,7 +1,7 @@
 # nb_drumcrow  
 caw caw caw  
 this is a norns mod  
-`nb` is a voice library for Norns.  
+`nb` is a voice library for norns.  
 `nb_drumcrow` is turns each output of a monome crow into a drumcrow oscillator  
   
 1) download this like you would any other script  
