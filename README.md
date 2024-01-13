@@ -6,15 +6,15 @@ it turns a each output of crow into an oscillator, CV trigger, or CV envelope us
 `nb_drumcrow` is turns each output of a monome crow into a [drumcrow oscillator](https://github.com/entzmingerc/drumcrow)  
 
 # Installation  
-1) download this like you would any other script  
-2) turn on the mod: go to system > mods > find nb_drumcrow, turn enc3 to the right until you see a +. this tells norns to load the mod at the next power ON  
-3) go to system > restart and then check the mods, it should have a dot . to the left of the name indicating the mod has been loaded  
-4) find a script that supports nb  
-5) go to your params and select drumcrow from your nb voices  
-6) start playing notes using a script with nb support. (...by calling player:note_on() like you would for other nb voices)  
+1) Download this like you would any other script  
+2) Turn on the mod: go to system > mods > find nb_drumcrow, turn enc3 to the right until you see a +. this tells norns to load the mod at the next power ON  
+3) Go to system > restart and then check the mods, it should have a dot . to the left of the name indicating the mod has been loaded  
+4) Find a script that supports nb  
+5) Go to your params and select drumcrow from your nb voices  
+6) Start playing notes using a script with nb support. (...by calling player:note_on() like you would for other nb voices)  
 
 # nb_drumcrow parameters
-see [drumcrow](https://github.com/entzmingerc/drumcrow) on lines for documentation of drumcrow parameters.  
+See [drumcrow](https://github.com/entzmingerc/drumcrow) on lines for documentation of drumcrow parameters.  
 
 `ON/OFF` turns the engine on or off. It is ON by default. This will remove the output from the updating loop and set the amplitude to 0.  
 `synth_preset` selects between init, perc, noise, trigger, envelope, and scale presets. Press `load_preset` to load the selected preset.  
