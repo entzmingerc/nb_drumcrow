@@ -13,10 +13,22 @@ it turns a each output of crow into an oscillator, CV trigger, or CV envelope us
 5) go to your params and select drumcrow from your nb voices  
 6) start playing notes using a script with nb support. (...by calling player:note_on() like you would for other nb voices)  
 
-see [drumcrow](https://github.com/entzmingerc/drumcrow) on lines for documentation of drumcrow parameters. 
+# nb_drumcrow parameters
+see [drumcrow](https://github.com/entzmingerc/drumcrow) on lines for documentation of drumcrow parameters.  
 
-# presets
+`ON/OFF` turns the engine on or off. It is ON by default. This will remove the output from the updating loop and set the amplitude to 0.  
+`synth_preset` selects between init, perc, noise, trigger, envelope, and scale presets. Press `load_preset` to load the selected preset.  
+Presets:  
+- init: basic sine wave oscillator with decay envelope. Use for melodic synth stuff or as a starting point.  
+- perc: fast enveloped pitch sweeps for synth percussion sounds. Use for kicks by sending a midi note of like 30 and using this preset.  
+- noise: fast enveloped pitch sweeps using white noise synth model. Use for snares or hats.  
+- trigger: CV trigger output. Use to output triggers to modular synths. Adjust amplitude envelope parameters to shape output voltage level, trigger length, etc.  
+- envelope: CV envelope output. Triggers voltage envelope. Adjust amplitude envelope parameters to shape output level, curve, rise/fall time, etc.  
+- scale: Quantized CV output. Uses `bit` to quantize output voltage for 1 v/oct inputs. Adjust `bit` to browse different quantization divisions. Adjust all the modulation sources and amplitude parameters (amp_amp, lfo_amp, note_amp) to combine everything into a quantized voltage sequence. Turns the CV envelope mode into a strange arpeggiator.  
 
+Trigger, envelope, and scale presets require the "now" shape and "var_saw" synth model to work as expected, but feel free to experiment.  
+
+For explanation of `synth_shape`, `synth_model`, and the remaining drumcrow parameters, please refer to [drumcrow](https://github.com/entzmingerc/drumcrow) documentation.  
 
 # nb_drumcrow scripting example  
 To support nb in a norns script, refer to [nb](https://github.com/sixolet/nb) for the most up to date information. nb_drumcrow creates an nb player for each of the four outputs on crow. To add nb support in a norns script, the nb library needs to be included in the script `nb = include("lib/nb/lib/nb")`. In the init function, call `nb:init()` then `nb:add_param("nb_1", "nb_1")` to create a nb player selector parameter called "nb_1" or any name you'd like. Then call `nb:add_player_params()` to add all nb players to the nb player selector parameter. Go to "nb_1" in the parameter menu and select "drumcrow 1" as the player.  
