@@ -349,7 +349,7 @@ function add_drumcrow_player(i)
     end
     
     function player:modulate(val)
-        -- currently unused, feel free to add support
+        -- currently unsupported, feel free to add support
         -- use modulate_note(note, key, value) to set drumcrow parameters with a key value pair
     end
 
@@ -359,14 +359,14 @@ function add_drumcrow_player(i)
             supports_bend = false,
             supports_slew = false,
             modulate_description = "none",
-            note_mod_targets = {"no targets"},
+            note_mod_targets = {"unsupported"},
             -- note_mod_targets = {"mfreq_mod", "note_mod", "amp_mod", "pw_mod", "pw2_mod", "bit_mod", "splash_mod"}, TO DO external modulation parameters?
         }
     end
     
-    -- ignores note, just uses key & value
+    -- used for midi keyboard per note modulation, currently unsupported
     function player:modulate_note(note, key, value)
-        params:set("drumcrow_"..key.."_"..i, value)
+        -- params:set("drumcrow_"..key.."_"..i, value)
     end
 
     function player:note_on(note, vel, properties)
