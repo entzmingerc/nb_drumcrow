@@ -18,38 +18,38 @@ local dc_names = {
 
 dc_preset_values = {
 { -- init, oscillator, decay envelope VCA, sine shape, var_saw model
-    mfreq = 1, note = 0, amp = 0, pw = 0, pw2 = 0, bit = -0.0069445, splash = 0,
+    mfreq = 1, note = 60, amp = -5, pw = 0, pw2 = 0, bit = -0.0069445, splash = 0,
     amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 10,  amp_symmetry = -1, amp_curve = 2,  amp_type = 0,  amp_phase = 1, 
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 4, note_type = 0, note_phase = 1, 
 },
 { -- perc, oscillator, fast pitch modulation envelope, any shape, var_saw model
-    mfreq = 1, note = 0, amp = 0, pw = 0.15, pw2 = 0, bit = -0.0069445, splash = 0,
+    mfreq = 1, note = 60, amp = -5, pw = 0.15, pw2 = 0, bit = -0.0069445, splash = 0,
     amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 30.06,  amp_symmetry = -1, amp_curve = -4.3,  amp_type = 0,  amp_phase = 1, 
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 3, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 7.5, note_symmetry = -1, note_curve = 4, note_type = 0, note_phase = 1, 
 },
 { -- noise, oscillator, fast amplitude cycle, noise model, any shape, noise model
-    mfreq = 1, note = 0, amp = 0, pw = 0.37, pw2 = 3.44, bit = -0.0069445, splash = 0,
+    mfreq = 1, note = 60, amp = -5, pw = 0.37, pw2 = 3.44, bit = -0.0069445, splash = 0,
     amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 46.63,  amp_symmetry = -1, amp_curve = 2,  amp_type = 0,  amp_phase = 1, 
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 3, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 2.6, note_symmetry = -1, note_curve = 0.8, note_type = 0, note_phase = 1, 
 },
 { -- CV trigger, requires "now" shape and "var_saw" model
-    mfreq = 1, note = 0, amp = -5, pw = -1, pw2 = 0, bit = -0.0069445, splash = 0,
+    mfreq = 1, note = 60, amp = -5, pw = -1, pw2 = 0, bit = -0.0069445, splash = 0,
     amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 101.42,  amp_symmetry = -1, amp_curve = -5,  amp_type = 0,  amp_phase = 1, 
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 0, note_type = 0, note_phase = 1, 
 },
 { -- CV decay envelope, requires "now" shape and "var_saw" model, use amp envelope parameters to control envelope shape
-    mfreq = 1, note = 0, amp = -5, pw = -1, pw2 = 0, bit = -0.0069445, splash = 0,
+    mfreq = 1, note = 60, amp = -5, pw = -1, pw2 = 0, bit = -0.0069445, splash = 0,
     amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 10.11,  amp_symmetry = -1, amp_curve = 0,  amp_type = 0,  amp_phase = 1, 
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 0, note_type = 0, note_phase = 1, 
 },
 { -- scale, requires "now" shape and "var_saw" model, specifically calculated bitcrush value for quantizing output (bit = 0.05555...)
 -- use with v/oct input on another oscillator, create arpeggios with slow LFOs and small amplitude modulation values (amp_amp, lfo_amp, note_amp)
-    mfreq = 1, note = 0, amp = -5, pw = -1, pw2 = 0, bit = 0.0555555, splash = 0,
+    mfreq = 1, note = 60, amp = -5, pw = -1, pw2 = 0, bit = 0.0555555, splash = 0,
     amp_mfreq = 0,  amp_note = 0,  amp_amp = 0.2,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 6.27,  amp_symmetry = -1, amp_curve = 0,  amp_type = 0,  amp_phase = 1, 
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0.4,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 0.75,  lfo_symmetry = 0,  lfo_curve = -1,  lfo_type = 1,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 0, note_type = 0, note_phase = 1, 
@@ -282,6 +282,12 @@ function update_drumcrow(dc_update_time, i)
         -- set frequency of oscillator on crow output
         max_freq = math.min(math.max(max_freq, 0.01), 1)
         local cyc = 1/dc_musicutil.note_num_to_freq(math.min(math.max(note_up * 12.7, 0.01), 127 * max_freq))
+        -- BUG: midi note 60 = 261.63 Hz, the denominator above is 261.625 Hz
+        -- however, using sine shape, var_saw model, I measure 255.5 Hz oscillator on the output of crow
+        -- I checked a bunch of notes and they're all about -41 cents detuned for each frequency requested
+        -- so maybe 261.625 Hz / 255.5 Hz = 1.02399 multiplier to frequency for a patch? I have no idea why this happens
+        -- 2 - 1.02399 = 0.9760078, but that's still +1 cents so 0.97655 I guess and checked
+        cyc = cyc * 0.97655
 
         -- magical splash function (I just messed around with math.random until it sounded cool, if drumcrow_splash_ <= 0 it just skips this)
         crow.output[i].dyn.cyc = sploosh > 0 and (math.random()*0.1 < cyc/0.1 and cyc + (cyc * 0.2 * math.random()*sploosh) or cyc + math.random()*0.002*sploosh) or cyc
