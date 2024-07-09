@@ -9,7 +9,7 @@ This norns mod can set each output of a monome crow to be an oscillator, CV trig
 1) Download this like you would any other script by typing `;install https://github.com/entzmingerc/nb_drumcrow` into maiden.  
 2) Turn on the mod: navigate to SYSTEM > MODS > nb_drumcrow, turn enc3 to the right until you see a "+". This tells norns to load the mod at the next power on.  
 3) Go to SYSTEM > RESTART, restart norns, then check your list of mods. It should have a dot "." to the left of the name indicating the mod has been loaded.  
-4) Find a script that supports nb. Might I suggest [dreamsequence](https://github.com/dstroud/dreamsequence)?  
+4) Find a script that supports nb. Might I suggest [pit orchisstra](https://github.com/entzmingerc/pit-orchisstra) or [dreamsequence by dstroud](https://github.com/dstroud/dreamsequence)?  
 5) Go to the norns params menu and select drumcrow 1, 2, 3, or 4 from your list of nb voices.  
 6) Start playing notes using a script with nb support.  
 
