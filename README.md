@@ -1,17 +1,17 @@
 # nb_drumcrow  
 caw caw caw  
-this is a norns mod  
-it turns a each output of crow into an oscillator, CV trigger, or CV envelope using nb  
+
+This norns mod can set each output of a monome crow to be an oscillator, CV trigger, or CV envelope using nb.  
 `nb` is a note-playing [voice library](https://github.com/sixolet/nb) for norns.  
-`nb_drumcrow` is turns each output of a monome crow into a [drumcrow oscillator](https://github.com/entzmingerc/drumcrow)  
+`nb_drumcrow` is turns each output of a monome crow into a [drumcrow oscillator](https://github.com/entzmingerc/drumcrow).  
 
 # Installation  
-1) Download this like you would any other script  
-2) Turn on the mod: go to system > mods > find nb_drumcrow, turn enc3 to the right until you see a +. this tells norns to load the mod at the next power ON  
-3) Go to system > restart and then check the mods, it should have a dot . to the left of the name indicating the mod has been loaded  
-4) Find a script that supports nb  
-5) Go to your params and select drumcrow from your nb voices  
-6) Start playing notes using a script with nb support. (...by calling player:note_on() like you would for other nb voices)  
+1) Download this like you would any other script by typing `;install https://github.com/entzmingerc/nb_drumcrow` into maiden.  
+2) Turn on the mod: navigate to SYSTEM > MODS > nb_drumcrow, turn enc3 to the right until you see a "+". This tells norns to load the mod at the next power on.  
+3) Go to SYSTEM > RESTART, restart norns, then check your list of mods. It should have a dot "." to the left of the name indicating the mod has been loaded.  
+4) Find a script that supports nb. Might I suggest [dreamsequence](https://github.com/dstroud/dreamsequence)?  
+5) Go to the norns params menu and select drumcrow 1, 2, 3, or 4 from your list of nb voices.  
+6) Start playing notes using a script with nb support.  
 
 # nb_drumcrow parameters
 See [drumcrow](https://github.com/entzmingerc/drumcrow) on lines for documentation of drumcrow parameters.  
@@ -20,9 +20,9 @@ See [drumcrow](https://github.com/entzmingerc/drumcrow) on lines for documentati
 `synth_preset` selects between init, perc, noise, trigger, envelope, and scale presets. Press `load_preset` to load the selected preset.  
 
 ### Presets  
-- init: basic sine wave oscillator with decay envelope. Use for melodic synth stuff or as a starting point.  
-- perc: fast enveloped pitch sweeps for synth percussion sounds. Use for kicks by sending a midi note of like 30 and using this preset.  
-- noise: fast enveloped pitch sweeps using white noise synth model. Use for snares or hats.  
+- init: Basic sine wave oscillator with decay envelope. Use for melodic synth stuff or as a starting point.  
+- perc: Fast enveloped pitch sweeps for synth percussion sounds. Use for kicks by sending a midi note of like 30 and using this preset.  
+- noise: Fast enveloped pitch sweeps using white noise synth model. Use for snares or hats.  
 - trigger: CV trigger output. Use to output triggers to modular synths. Adjust amplitude envelope parameters to shape output voltage level, trigger length, etc.  
 - envelope: CV envelope output. Triggers voltage envelope. Adjust amplitude envelope parameters to shape output level, curve, rise/fall time, etc.  
 - scale: Quantized CV output. Uses `bit` to quantize output voltage to 12 sections per 1V for 1 v/oct inputs. Adjust `bit` slightly to browse different quantization divisions. Adjust all the modulation sources and amplitude parameters (amp_amp, lfo_amp, note_amp) to combine everything into a quantized voltage sequence. Turns the CV envelope preset into a strange arpeggiator.  
