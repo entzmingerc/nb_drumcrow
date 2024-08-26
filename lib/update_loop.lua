@@ -1,9 +1,25 @@
 states = {}
 DC_FREQ_LIMIT = {114, 114, 101, 101, 114, 114, 114, 114, 114}
+DC_SPECIES_DNA = {
+    {}, -- chromatic
+    {0, 2, 4, 5, 7, 9, 11}, -- major
+    {0, 2, 3, 5, 7, 9, 10}, -- minor
+    {0, 3, 5, 7, 10}, -- pentatonic
+    {0, -3, -5, -7, -10, -7, -5, 0, 5, 7, 12, 17, 19, 22, 19, 17, 15, 12},
+    {0, 0, 2, 7, 14, 21, 28, 36, 30, 18, 12},
+    {0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 14, 12, 11, 9, 7, 5, 4, 2, 0},
+    {0, 7, 0, 12, 0, 19},
+    {0, 0, 0, 0, -7, 0, 7, 14, 21, 28, 12, 12, 12, 12},
+    {0, 11, 9, 7, 5, 4, 2, 0},
+    {0, -3, -5, -7, -10, 10, 7, 5, 3, 0},
+    {0, 23, 2, 21, 4, 21, 5, 19, 7, 17, 11, 16, 12, 14, 12},
+    {0, 1, 2, 3, 5, 7, 9, 11, 13, -13, -11, -9, -7, -5, -3, -2, -1, 0},
+    {0, 12, 24, -24, 0, 0, 0, -24, 24, 19, 12},
+    {0, 2, 14, 2, 0, 5, 7, 12, 10, -2, 10, 12}
+} -- 15 species discovered
 dc_update_time = 0.008
 dc_update_metro = false
 dc_update_init_check = false
-dc_param_behavior = 1
 shapes = {'linear','sine','logarithmic','exponential','now','wait','over','under','rebound'}
 for ch = 1, 4 do
     states[ch] = 
@@ -13,7 +29,7 @@ for ch = 1, 4 do
         lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_loop = 2,  lfo_phase = -1, 
         note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 4, note_loop = 1, note_phase = 1, 
         transpose = 0, model = 1, shape = 1,
-        amp_reset = 2, lfo_reset = 1, note_reset = 2, species = {}
+        amp_reset = 2, lfo_reset = 1, note_reset = 2, species = 1
     }
 end
 
@@ -127,20 +143,20 @@ function dc_update_loop_maths(i)
     local pw2      = s.pw2 + (noteenv * s.note_pw2) + (lfo * s.lfo_pw2) + (ampenv * s.amp_pw2)
     local bitz     = s.bit + (noteenv * s.note_bit) + (lfo * s.lfo_bit) + (ampenv * s.amp_bit)
     local sploosh  = s.splash
+    
     max_freq = math.min(math.max(max_freq, 0.01), 1)
     local cyc = 1/num2freq(math.min(math.max(note_up * 12.7, 0.01) + s.transpose, DC_FREQ_LIMIT[s.shape] * max_freq))
-    cyc = cyc * 0.97655
+    cyc = cyc * 0.97655 -- for correct tuning
     output[i].dyn.cyc = sploosh > 0 and (math.random()*0.1 < cyc/0.1 and cyc + (cyc * 0.2 * math.random()*sploosh) or cyc + math.random()*0.002*sploosh) or cyc
+    
     output[i].dyn.dcAmp = math.min(math.max(volume, -10), 10)
+    
     if bitz > 0 then
-        output[i].scale(s.species, 12, bitz)
+        output[i].scale(DC_SPECIES_DNA[s.species], 12, bitz)
     else
         output[i].scale('none') 
     end
 
-    -- no quantization
-    -- yes strict quantization to selected scale
-    -- yes strict quantization to whacky bits 
     pw = (math.min(math.max(pw, -1), 1) + 1) / 2
     if s.model == 2 or s.model == 5 or s.model == 6 then
         output[i].dyn.pw = pw * pw2

@@ -5,37 +5,23 @@
 -- nb author: sixolet
 
 -- BITCRUSHER SCALE PRESETS
--- species of crow https://en.wikipedia.org/wiki/Crow
+-- 1) go to update_loop.lua and add a new DNA sequence to DC_SPECIES_DNA
+-- 2) add species of crow to dc_species_names https://en.wikipedia.org/wiki/Crow
+-- ~~~~~ DNA Sequence Notes ~~~~~
+-- bitcrush amount == number of volts per octave
+-- DNA sequence == the quantizer scale that is applied across each octave
+-- fixed to 12 step temperament so that low frequency output values get quantized to melodic sequences when bitcrush = 1.0
+-- start DNA sequence with 0 so that high bitcrush values don't result in constant DC offset
+-- 0 is start of octave, 12 is end of octave, nice to end sequence on 12 for smooth transition
+-- max DNA sequence length of 20 ish? I tried 30 and it gets a bit glitchy
+-- larger numbers mean louder signal with higher bitcrush values, 36 is roughly useful maximum
 -- WMD geiger counter wavetables for inspiration https://cdn.shopify.com/s/files/1/0977/3366/files/GeigerCounterWaveTables-hires.pdf?v=1678297681
 -- easing functions for inspiration https://easings.net/
--- should to start with 0 so that high bitcrush values don't result in constant DC offset
--- nice to end at 12 to smoothly transition into the next octave up, but not required
--- 0 is always the start of the octave and 12 is always the next octave up (12TET)
--- I tried a 30 length DNA sequence and it seemed a bit glitchy, so maybe keep it to 20 ish maximum?
--- larger numbers mean higher amplitude signal because we're setting the voltages to jump map to, 36 is roughly useful max
 dc_species_names = {
     'cornix', 'albus', 'orru', 'kubaryi', 'brachyrhynchos', 
     'culminatus', 'bennetti', 'levaillantii', 'torquatus', 'corone',
     'capensis', 'edithae', 'enca', 'florensis', 'fuscicapillus'
-}
-dc_species_DNA = {
-    {}, -- chromatic
-    {0, 2, 4, 5, 7, 9, 11}, -- major
-    {0, 2, 3, 5, 7, 9, 10}, -- minor
-    {0, 3, 5, 7, 10}, -- pentatonic
-    {0, -3, -5, -7, -10, -7, -5, 0, 5, 7, 12, 17, 19, 22, 19, 17, 15, 12},
-    {0, 0, 2, 7, 14, 21, 28, 36, 30, 18, 12},
-    {0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 14, 12, 11, 9, 7, 5, 4, 2, 0},
-    {0, 7, 0, 12, 0, 19},
-    {0, 0, 0, 0, -7, 0, 7, 14, 21, 28, 12, 12, 12, 12},
-    {0, 11, 9, 7, 5, 4, 2, 0},
-    {0, -3, -5, -7, -10, 10, 7, 5, 3, 0},
-    {0, 23, 2, 21, 4, 21, 5, 19, 7, 17, 11, 16, 12, 14, 12},
-    {0, 1, 2, 3, 5, 7, 9, 11, 13, -13, -11, -9, -7, -5, -3, -2, -1, 0},
-    {0, 12, 24, -24, 0, 0, 0, -24, 24, 19, 12},
-    {0, 2, 14, 2, 0, 5, 7, 12, 10, -2, 10, 12},
 } -- 15 species discovered
-
 
 -- SYNTH PRESETS
 -- 1) add the name to dc_preset_names
@@ -49,7 +35,7 @@ dc_preset_values = {
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1, lfo_symmetry = 0,  lfo_curve = 0,  lfo_loop = 2,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 4, note_loop = 1, note_phase = 1, 
     transpose = 0, model = 1, shape = 2,
-    amp_reset = 2, lfo_reset = 1, note_reset = 2, species = dc_species_DNA[1]
+    amp_reset = 2, lfo_reset = 1, note_reset = 2, species = 1
 },
 { -- kick, oscillator, fast pitch modulation envelope, var_saw model, rebound shape
     mfreq = 1, note = 60, dcAmp = 0, pw = 0, pw2 = 0, bit = 0, splash = 0,
@@ -57,7 +43,7 @@ dc_preset_values = {
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,   lfo_bit = 0, lfo_cycle = 6.1, lfo_symmetry = 0,  lfo_curve = 0,  lfo_loop = 2,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 5, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 4.02, note_symmetry = -1, note_curve = 4, note_loop = 1, note_phase = 1, 
     transpose = -24, model = 1, shape = 9,
-    amp_reset = 2, lfo_reset = 1, note_reset = 2, species = dc_species_DNA[1]
+    amp_reset = 2, lfo_reset = 1, note_reset = 2, species = 1
 },
 { -- snare, oscillator, fast amplitude cycle, noise model, linear shape
     mfreq = 1, note = 60, dcAmp = 0, pw = 0.39, pw2 = 3.08, bit = 0, splash = 0,
@@ -65,7 +51,7 @@ dc_preset_values = {
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_loop = 2,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 3, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 2.6, note_symmetry = -1, note_curve = 0.8, note_loop = 1, note_phase = 1, 
     transpose = 24, model = 3, shape = 2,
-    amp_reset = 2, lfo_reset = 1, note_reset = 2, species = dc_species_DNA[1]
+    amp_reset = 2, lfo_reset = 1, note_reset = 2, species = 1
 },
 { -- hihat, oscillator, fast amplitude cycle, noise model, rebound shape
     mfreq = 1, note = 60, dcAmp = 0, pw = 0.66, pw2 = 3.44, bit = 0, splash = 0,
@@ -73,7 +59,7 @@ dc_preset_values = {
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_loop = 2,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 3, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 2.6, note_symmetry = -1, note_curve = 0.8, note_loop = 1, note_phase = 1, 
     transpose = 24, model = 3, shape = 9,
-    amp_reset = 2, lfo_reset = 1, note_reset = 2, species = dc_species_DNA[1]
+    amp_reset = 2, lfo_reset = 1, note_reset = 2, species = 1
 },
 { -- CV trigger, requires "var_saw" model and "now" shape, amp_cycle controls gate length
     mfreq = 1, note = 60, dcAmp = 0, pw = 1, pw2 = 0, bit = 0, splash = 0,
@@ -81,7 +67,7 @@ dc_preset_values = {
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_loop = 2,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 0, note_loop = 1, note_phase = 1, 
     transpose = 0, model = 1, shape = 5,
-    amp_reset = 2, lfo_reset = 1, note_reset = 2, species = dc_species_DNA[1]
+    amp_reset = 2, lfo_reset = 1, note_reset = 2, species = 1
 },
 { -- CV decay envelope, requires "var_saw" model and "now" shape, modulate amplitude to control envelope shape
     mfreq = 1, note = 60, dcAmp = 0, pw = 1, pw2 = 0, bit = 0, splash = 0,
@@ -89,7 +75,7 @@ dc_preset_values = {
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 4.05,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_loop = 2,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 1.09, note_symmetry = -1, note_curve = 0, note_loop = 1, note_phase = 1, 
     transpose = 0, model = 1, shape = 5,
-    amp_reset = 2, lfo_reset = 1, note_reset = 2, species = dc_species_DNA[1]
+    amp_reset = 2, lfo_reset = 1, note_reset = 2, species = 1
 },
 { -- scale, requires "now" shape and "var_saw" model, specifically calculated bitcrush value for quantizing output (bit = 0.05555...)
 -- use with v/oct input on another oscillator, create arpeggios with slow LFOs and small amplitude modulation values (amp_amp, lfo_amp, note_amp)
@@ -98,10 +84,9 @@ dc_preset_values = {
     lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 0.5,  lfo_symmetry = 0,  lfo_curve = -1,  lfo_loop = 1,  lfo_phase = -1, 
     note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 0.5, note_symmetry = -1, note_curve = 0, note_loop = 1, note_phase = 1, 
     transpose = 0, model = 1, shape = 5,
-    amp_reset = 1, lfo_reset = 0, note_reset = 1, species = dc_species_DNA[2]
+    amp_reset = 1, lfo_reset = 0, note_reset = 1, species = 2
 },
 }
-
 
 
 -- nb_drumcrow code ------------------------------------------------------------
@@ -131,13 +116,11 @@ dc_names = {
     "lfo_mfreq", "lfo_note", "lfo_amp", "lfo_pw", "lfo_pw2", "lfo_bit", "lfo_cycle", "lfo_symmetry", "lfo_curve", "lfo_loop", "lfo_phase", 
     "note_mfreq", "note_note", "note_amp", "note_pw", "note_pw2", "note_bit", "note_cycle", "note_symmetry", "note_curve", "note_loop", "note_phase",
     "transpose", "model", "shape", 
-    "amp_reset", "lfo_reset", "note_reset", 
-    "species"
+    "amp_reset", "lfo_reset", "note_reset", "species"
 } -- 47 params, name order matters here for params initializaiton, TODO fix that
 
-
-function build_large_strings()
-    -- build dc_param_IDs, this returns a param ID string: dc_param_IDs[i]["mfreq"]
+-- build dc_param_IDs, this returns a param ID string: dc_param_IDs[i]["mfreq"]
+function build_dc_param_IDs()
     for i = 1, 4 do
         dc_param_IDs[i] = {}
         for j = 1, #dc_names do
@@ -154,60 +137,45 @@ function build_large_strings()
     end
 end
 
-function dc_load_preset(i, properties)
-    local preset_selection = params:get(dc_param_IDs[i]["synth_preset"])
-    local preset_model = dc_preset_values[preset_selection]["model"]
-    local preset_shape = dc_preset_values[preset_selection]["shape"]
+-- takes data from dc_preset_values and sets norns params menu and sets states on crow
+function dc_load_preset(i, preset_values)
+    local preset_model = preset_values["model"]
+    local preset_shape = preset_values["shape"]
 
     if params:get(dc_param_IDs[i]["param_behavior"]) == 1 then
-        for k, v in pairs(properties) do
-            if     k == "amp_phase"  then params:set(dc_param_IDs[i]["amp_phase"],  1)
-            elseif k == "lfo_phase"  then params:set(dc_param_IDs[i]["lfo_phase"], -1)
-            elseif k == "note_phase" then params:set(dc_param_IDs[i]["note_phase"], 1)
-            else
-                params:set(dc_param_IDs[i][k], v)
-                if k == "species" then
-                    dc_param_update_table[j][k] = dc_species_DNA[v]
-                else
-                    dc_param_update_table[j][k] = v
-                end
+        for k, v in pairs(preset_values) do
+            if k ~= "model" and k ~= "shape" then
+                params:set(dc_param_IDs[i][k], v) -- set norns param
+                dc_param_update_table[i][k] = v -- set crow state
             end
             dc_param_update_table_dirty = true
-            dc_param_update_loop() -- update immediately
+            dc_param_update_loop() -- update immediately, one value at a time
         end
-        params:set(dc_param_IDs[i]["synth_model"], preset_model, false)
-        params:set(dc_param_IDs[i]["synth_shape"], preset_shape, false)
-        crow.dc_set_synth(i, preset_model, preset_shape)
+        params:set(dc_param_IDs[i]["synth_shape"], preset_shape) -- set norns shape
+        params:set(dc_param_IDs[i]["synth_model"], preset_model) -- set norns model
+        crow.dc_set_synth(i, preset_model, preset_shape)  -- set crow model and shape
     else
-        for k, v in pairs(properties) do
-            if     k == "amp_phase"  then params:set(dc_param_IDs[i]["amp_phase"],  1)
-            elseif k == "lfo_phase"  then params:set(dc_param_IDs[i]["lfo_phase"], -1)
-            elseif k == "note_phase" then params:set(dc_param_IDs[i]["note_phase"], 1)
-            else
-                for j = 1, 4 do
-                    params:set(dc_param_IDs[j][k], v)
-                    if k == "species" then
-                        dc_param_update_table[j][k] = dc_species_DNA[v]
-                    else
-                        dc_param_update_table[j][k] = v
-                    end
+        for j = 1, 4 do
+            for k, v in pairs(preset_values) do
+                if k ~= "model" and k ~= "shape" then
+                    params:set(dc_param_IDs[j][k], v) -- set norns param
+                    dc_param_update_table[j][k] = v -- set crow state
                 end
+                dc_param_update_table_dirty = true
+                dc_param_update_loop() -- update immediately
             end
-            dc_param_update_table_dirty = true
-            dc_param_update_loop() -- update immediately
         end
         for j = 1, 4 do
-            params:set(dc_param_IDs[j]["synth_model"], preset_model, false)
-            params:set(dc_param_IDs[j]["synth_shape"], preset_shape, false)
+            params:set(dc_param_IDs[j]["synth_shape"], preset_shape)
+            params:set(dc_param_IDs[j]["synth_model"], preset_model)
             crow.dc_set_synth(j, preset_model, preset_shape)
         end
     end
     dc_param_update_table_dirty = true
 end
 
-
+-- create drumcrow parameter menu for nb to show/hide
 local function add_drumcrow_params(i)
-    -- create drumcrow parameter menu for nb to show/hide
     params:add_group(dc_param_IDs[i]["group"], "drumcrow voice "..i, 7 + 9 + 12 + 12 + 12) -- keep track number of params for the group
     params:hide(dc_param_IDs[i]["group"])
     params:add_trigger(dc_param_IDs[i]["send_code"], "resend code to crow")
@@ -229,13 +197,8 @@ local function add_drumcrow_params(i)
                 params:set(dc_param_IDs[j]["param_behavior"], x) -- set all 4 params to this value
             end
         end
-        if dc_code_sent == false then 
-            print("CAW: resend code to crow! param behavior")
-            return 
-        else
-            crow("dc_param_behavior = " .. x)
-        end
     end)
+
     params:add_option(dc_param_IDs[i]["synth_preset"], "synth preset", dc_preset_names, 1)
     params:add_trigger(dc_param_IDs[i]["load_preset"], "load preset")
     params:add_option(dc_param_IDs[i]["synth_shape"], "synth shape", dc_shapes, 2)
@@ -396,34 +359,62 @@ function dc_crow_code_send()
     -- norns.crow.loadscript("nb_drumcrow/lib/update_loop.lua", false, false) -- if true, it uploads the script, if false, it loads to current memory
     -- I can't get norns.crow.loadscript to work
     -- below is a version of norns.crow.loadscript modified to not run in an asynchronous coroutine
+    -- approximately 0.04 delta between os.clock() value every 1 second in maiden
     -- TODO 
     --     does ...os.clock overflow back to 0? highly unlikely we'd run into that issue
     --     do I need the busy wait while loops? using them as pseudo delay for crow to process received command
     -- https://github.com/monome/crow/blob/7027d2971a5491b021d8b309101cf2f75a7b5787/lib/caw.c#L104
 
-    -- make the event to catch upload completion before we continue?
+    -- make the event to catch upload completion before we continue
     norns.crow.public.discovered = function() 
         print("CAW: code uploaded! READY!") 
         dc_code_sent = true
 
-        if dc_code_resent == true then -- reset norns param menu
-            -- TODO don't set everything to the preset, instead set crow to the current parameter values
-            params:set(dc_param_IDs[1]["param_behavior"], 2, false) -- change behavior to all to reset parameters
-            dc_load_preset(1, dc_preset_values[params:get(dc_param_IDs[1]["synth_preset"])]) -- load a preset
-            params:set(dc_param_IDs[1]["param_behavior"], 1, false) -- change behavior back to individual
-            dc_code_resent = false
+        -- get current values of norns param menu and send to crow
+        if dc_code_resent == true then 
+            local temp_param_behavior = 0
+            temp_param_behavior = params:get(dc_param_IDs[1]["param_behavior"]) -- store current value, "global"
+            params:set(dc_param_IDs[1]["param_behavior"], 1, false) -- set everything to individual
+
+            -- first update the state table on crow (excluding model and shape)
+            local p_val = 0 
+            for j = 1, 4 do -- for each output
+                for _, k in pairs(dc_names) do
+                    if k ~= "model" and k ~= "shape" then
+                        p_val = params:get(dc_param_IDs[j][k]) -- get the current param value
+                        dc_param_update_table[j][k] = p_val
+                    end
+                    dc_param_update_table_dirty = true
+                    dc_param_update_loop() -- update immediately
+                end
+            end
+
+            -- then set the ASL with model and shape
+            local shp = 0
+            local mdl = 0
+            for j = 1, 4 do
+                mdl = params:get(dc_param_IDs[j]["synth_model"])
+                shp = params:get(dc_param_IDs[j]["synth_shape"])
+                crow.dc_set_synth(j, mdl, shp)
+            end
+
+            -- then reset param_behavior to the previous value
+            params:set(dc_param_IDs[1]["param_behavior"], temp_param_behavior, false) 
+            dc_param_update_table_dirty = true
+            dc_code_resent = false -- reset sent code to false
         end
     end
 
+    -- now let's send crow the code, first find the file to send
     file = "nb_drumcrow/lib/update_loop.lua"
     is_persistent = false
-
     local abspath = norns.crow.findscript(file, is_persistent)
     if not abspath then
         print("CAW: crow.loadscript: can't find file "..file)
         return
     end
 
+    -- send code line by line to crow
     print("CAW: crow loading: ".. abspath)
     norns.crow.send("^^s")
     -- clock.sleep(0.2), os.clock() roughly 0.04 delta per second, so 0.008 per 0.2 sec?
@@ -534,21 +525,14 @@ function dc_param_update_stop()
     end
 end
 
+-- add value to dc_param_update_table to send to crow state table (excluding model and state)
 function dc_param_update_add(ch, k, val)
-    if k == "species" then
-        dc_param_update_table[ch][k] = dc_species_DNA[val]
-    else
-        dc_param_update_table[ch][k] = val
-    end
+    dc_param_update_table[ch][k] = val
     if params:get(dc_param_IDs[ch]["param_behavior"]) ~= 1 then
         for j = 1, 4 do
             if ch ~= j then -- update all the other params, don't trigger their actions please
                 params:set(dc_param_IDs[j][k], val, true)
-                if k == "species" then
-                    dc_param_update_table[j][k] = dc_species_DNA[val]
-                else
-                    dc_param_update_table[j][k] = val
-                end
+                dc_param_update_table[j][k] = val
             end
         end
     end
@@ -565,7 +549,7 @@ end
 
 function dc_pre_init() -- called before norns script init
     dc_code_sent = false -- init to false so things don't explode
-    build_large_strings() -- cook up larger strings instead of dynamically creating them during runtime
+    build_dc_param_IDs() -- cook up larger strings instead of dynamically creating them during runtime
     add_drumcrow_player(1) -- add 4 nb players to note_players, one player for each output on crow
     add_drumcrow_player(2)
     add_drumcrow_player(3)
@@ -580,8 +564,7 @@ end
 mod.hook.register("script_pre_init", "drumcrow pre init", dc_pre_init) -- add 4 nb players to note_players, one player for each output on crow
 mod.hook.register("script_post_init", "drumcrow post init", dc_post_init) -- add 4 nb players to note_players, one player for each output on crow
 
-
--- GRAVEYARD
+-- NOTES:
 
 -- 1 update loop for all 4 outputs, check dyns first
 -- BUG: midi note 60 = 261.63 Hz, the denominator above is 261.625 Hz
@@ -590,9 +573,6 @@ mod.hook.register("script_post_init", "drumcrow post init", dc_post_init) -- add
 -- so maybe 261.625 Hz / 255.5 Hz = 1.02399 multiplier to frequency for a patch? I have no idea why this happens
 -- 2 - 1.02399 = 0.9760078, but that's still +1 cents so 0.97655 I guess and checked
 -- cyc = cyc * 0.97655
--- magical splash function (I just messed around with math.random until it sounded cool, if drumcrow_splash_ <= 0 it just skips this) 
-
--- automatically turn off update flag if dcAmp is not there
 
 -- design constraints
 -- uses metro 8 on crow
@@ -602,50 +582,5 @@ mod.hook.register("script_post_init", "drumcrow post init", dc_post_init) -- add
 -- 114 = 5919 Hz, 101 = 2793 Hz
 -- code is sent post norns script init() and will reset all crow initialization or reset all code previously sent to crow 
 -- resending code will reset crow and thus reset the behaviors of crow inputs 1 and 2 (example: dreamsequence uses in 2)
--- used to be this     states[ch].dcAmp = (vel/127) * 20 - 10
--- {0, 7, 11, 19, 18, 14, 16}
--- {0, 7, 14, 21, 28}
--- SCALES = {
---     {0, 2, 4, 5, 7, 9, 11},
---     {0, 2, 3, 5, 7, 9, 11},
---     {0, 1, 3, 5, 7, 8, 10},
---     {0, 2, 4, 6, 7, 9, 11},
---     {0, 2, 4, 5, 7, 9, 10},
---     {0, 2, 3, 5, 7, 8, 10},
---     {0, 1, 3, 5, 6, 8, 10},
---     {0, 3, 5, 7, 10},
---     {0, 2, 5, 7, 9},
---     {}
--- }
--- magic bit numbers
--- crow.output[i].scale({}, 2, bitz * 3) here's the bitcrush quantization
--- if bitz is 0.0555555555, then there's 2 steps per "octave = bitz * 3 = 0.1666666V". Then if you multiply 0.166666V by 6, you get 0.999999 V which is 6 chunks with 2 steps each
--- this is close to 1 V/octave scaling, perhaps this is just intonation or something close to that
--- using step size of 0.00125 we can get multiples of 0.05555555 as the bit value, and some inbetween values for quantizing output voltage
--- to set bitcrush off, bit should be less than 0, so I subtracted 0.0125 until it's less than 0 as the "default value" = -0.0069445
--- min and max limits are calculated as values "close to -10 .. +10" using 0.00125 as a step size from -0.0069445. 
-
--- norns.crow.init() -- ...what ...does this do? it's not an environmental command
--- crow.reset() -- this doesn't seem to clear the VM code, so I want to kill then send code
--- dc_crow_code_send() -- uploading code risks interruption due to norns script trying to init crow, try post init
-
--- local function upload(file)
---     -- TODO refine these clock.sleep(). can likely be reduced.
---     norns.crow.send("^^s")
---     clock.sleep(0.2)
---     for line in io.lines(file) do
---         norns.crow.send(line)
---         clock.sleep(0.01)
---     end
---     clock.sleep(0.2)
---     norns.crow.send(is_persistent and "^^w" or "^^e") -- what is ^^w or ^^e?
---     -- if cont then
---     --     clock.sleep(is_persistent and 0.5 or 0.2) -- ensure flash is complete
---     --     cont() -- call continuation function
---     -- end
--- end
-
--- print("CAW: crow loading: ".. file)
--- clock.run(upload, abspath, is_persistent)
-
--- dc_code_sent = true -- should only be set true when we get norns.crow.public.ready() event trigger
+-- automatically turn off update flag if dcAmp is not there
+-- magical splash function (I just messed around with math.random until it sounded cool, if splash <= 0 it just skips this) 
