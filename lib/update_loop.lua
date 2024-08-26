@@ -1,5 +1,5 @@
 states = {}
-FREQ_LIMIT = {114, 114, 101, 101, 114, 114, 114, 114, 114}
+DC_FREQ_LIMIT = {114, 114, 101, 101, 114, 114, 114, 114, 114}
 dc_update_time = 0.008
 dc_update_metro = false
 dc_update_init_check = false
@@ -8,11 +8,12 @@ shapes = {'linear','sine','logarithmic','exponential','now','wait','over','under
 for ch = 1, 4 do
     states[ch] = 
     {
-        mfreq = 1, note = 60, dcAmp = -5, pw = 0, pw2 = 0, bit = -0.0069445, splash = 0,
-        amp_mfreq = 0,  amp_note = 0,  amp_amp = 0.5,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 2,  amp_symmetry = -1, amp_curve = 2,  amp_type = 0,  amp_phase = 1, 
-        lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_type = 1,  lfo_phase = -1, 
-        note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 4, note_type = 0, note_phase = 1, 
-        transpose = 0, model = 1, shape = 1
+        mfreq = 1, note = 60, dcAmp = 5, pw = 0, pw2 = 0, bit = 0, splash = 0,
+        amp_mfreq = 0,  amp_note = 0,  amp_amp = 1,  amp_pw = 0,  amp_pw2 = 0,  amp_bit = 0,  amp_cycle = 2,  amp_symmetry = -1, amp_curve = 2,  amp_loop = 1,  amp_phase = 1, 
+        lfo_mfreq = 0,  lfo_note = 0,  lfo_amp = 0,  lfo_pw = 0,  lfo_pw2 = 0,  lfo_bit = 0,  lfo_cycle = 6.1,  lfo_symmetry = 0,  lfo_curve = 0,  lfo_loop = 2,  lfo_phase = -1, 
+        note_mfreq = 0, note_note = 0, note_amp = 0, note_pw = 0, note_pw2 = 0, note_bit = 0, note_cycle = 10, note_symmetry = -1, note_curve = 4, note_loop = 1, note_phase = 1, 
+        transpose = 0, model = 1, shape = 1,
+        amp_reset = 2, lfo_reset = 1, note_reset = 2, species = {}
     }
 end
 
@@ -36,33 +37,33 @@ end
 
 function ASL_bytebeat(shape)
     return loop{
-        to(dyn{x=1}:step(dyn{pw=1}):wrap(-10,10) * dyn{dcAmp=2}, dyn{cyc=1}, shape)}
+        to(dyn{x=1}:step(dyn{pw=1}):wrap(-10,10) * dyn{dcAmp=0}, dyn{cyc=1}, shape)}
 end
 
 function ASL_noise(shape)
     return loop{
-        to(dyn{x=1}:mul(dyn{pw2=1}):step(dyn{pw=1}):wrap(-5,5) * dyn{dcAmp=2}, dyn{cyc=1}, shape)} 
+        to(dyn{x=1}:mul(dyn{pw2=1}):step(dyn{pw=1}):wrap(-5,5) * dyn{dcAmp=0}, dyn{cyc=1}, shape)} 
 end
 
 function ASL_FMstep(shape) 
     return loop{
-        to(  dyn{dcAmp=2}, dyn{x=1}:step(dyn{pw2=1}):wrap(1,2) * dyn{cyc=1} * dyn{pw=1}, shape),
-        to(0-dyn{dcAmp=2}, dyn{x=1} * dyn{cyc=1} * (1-dyn{pw=1}), shape)}
+        to(  dyn{dcAmp=0}, dyn{x=1}:step(dyn{pw2=1}):wrap(1,2) * dyn{cyc=1} * dyn{pw=1}, shape),
+        to(0-dyn{dcAmp=0}, dyn{x=1} * dyn{cyc=1} * (1-dyn{pw=1}), shape)}
 end
 
 function ASL_sine(shape)
     return loop{
-        to((dyn{x=0}:step(dyn{pw=0.314}):wrap(-3.14,3.14) + 0.101321 * dyn{x=0} * dyn{x=0} * dyn{x=0}) * dyn{dcAmp=2}, dyn{cyc=1}, shape)}
+        to((dyn{x=0}:step(dyn{pw=0.314}):wrap(-3.14,3.14) + 0.101321 * dyn{x=0} * dyn{x=0} * dyn{x=0}) * dyn{dcAmp=0}, dyn{cyc=1}, shape)}
 end
 
 function ASL_harmonic(shape)
     return loop{
-        to((dyn{x=0}:step(dyn{pw=1}):mul(-1):wrap(-3.14,3.14) + 0.101321 * dyn{x=0} * dyn{x=0} * dyn{x=0}) * dyn{dcAmp=2}, dyn{cyc=1}, shape)}
+        to((dyn{x=0}:step(dyn{pw=1}):mul(-1):wrap(-3.14,3.14) + 0.101321 * dyn{x=0} * dyn{x=0} * dyn{x=0}) * dyn{dcAmp=0}, dyn{cyc=1}, shape)}
 end
 
 function ASL_bytebeat5(shape)
     return loop{
-        to(dyn{x=0}:step(dyn{pw=0.1}):wrap(0, 10) % dyn{pw2=1} * dyn{dcAmp=2}, dyn{cyc=1}, shape)}
+        to(dyn{x=0}:step(dyn{pw=0.1}):wrap(0, 10) % dyn{pw2=1} * dyn{dcAmp=0}, dyn{cyc=1}, shape)}
 end
 
 function dc_set_synth(ch, model, shape)
@@ -84,7 +85,6 @@ function dc_update_stop()
         dc_update_metro = false
         metro[8]:stop()
     end
-    print(10000)
 end
 
 function dc_check_ASL(ch)
@@ -114,11 +114,11 @@ end
 
 function dc_update_loop_maths(i)
     local s = states[i]
-    s.amp_phase   = dc_update_acc(s.amp_phase, s.amp_cycle, dc_update_time, s.amp_type > 0)
+    s.amp_phase   = dc_update_acc(s.amp_phase, s.amp_cycle, dc_update_time, s.amp_loop == 2)
     local ampenv  = dc_update_peak(s.amp_phase, s.amp_symmetry, s.amp_curve)
-    s.lfo_phase   = dc_update_acc(s.lfo_phase, s.lfo_cycle, dc_update_time, s.lfo_type > 0)
+    s.lfo_phase   = dc_update_acc(s.lfo_phase, s.lfo_cycle, dc_update_time, s.lfo_loop == 2)
     local lfo     = dc_update_peak(s.lfo_phase, s.lfo_symmetry, s.lfo_curve)
-    s.note_phase  = dc_update_acc(s.note_phase, s.note_cycle, dc_update_time, s.note_type > 0)
+    s.note_phase  = dc_update_acc(s.note_phase, s.note_cycle, dc_update_time, s.note_loop == 2)
     local noteenv = dc_update_peak(s.note_phase, s.note_symmetry, s.note_curve)
     local max_freq = s.mfreq     + (noteenv * s.note_mfreq) + (lfo * s.lfo_mfreq) + (ampenv * s.amp_mfreq)
     local note_up  = s.note/12.7 + (noteenv * s.note_note)  + (lfo * s.lfo_note)   + (ampenv * s.amp_note)
@@ -128,15 +128,19 @@ function dc_update_loop_maths(i)
     local bitz     = s.bit + (noteenv * s.note_bit) + (lfo * s.lfo_bit) + (ampenv * s.amp_bit)
     local sploosh  = s.splash
     max_freq = math.min(math.max(max_freq, 0.01), 1)
-    local cyc = 1/num2freq(math.min(math.max(note_up * 12.7, 0.01) + s.transpose, FREQ_LIMIT[s.shape] * max_freq))
+    local cyc = 1/num2freq(math.min(math.max(note_up * 12.7, 0.01) + s.transpose, DC_FREQ_LIMIT[s.shape] * max_freq))
     cyc = cyc * 0.97655
     output[i].dyn.cyc = sploosh > 0 and (math.random()*0.1 < cyc/0.1 and cyc + (cyc * 0.2 * math.random()*sploosh) or cyc + math.random()*0.002*sploosh) or cyc
     output[i].dyn.dcAmp = math.min(math.max(volume, -10), 10)
-    if bitz > 0 then 
-        output[i].scale({}, 2, bitz * 3) 
+    if bitz > 0 then
+        output[i].scale(s.species, 12, bitz)
     else
         output[i].scale('none') 
     end
+
+    -- no quantization
+    -- yes strict quantization to selected scale
+    -- yes strict quantization to whacky bits 
     pw = (math.min(math.max(pw, -1), 1) + 1) / 2
     if s.model == 2 or s.model == 5 or s.model == 6 then
         output[i].dyn.pw = pw * pw2
@@ -184,20 +188,19 @@ function dc_note_on(ch, nt, vel)
     if dc_update_init_check == false then
         dc_update_init()
     end
-
     if dc_check_ASL(ch) == false then
         dc_set_synth(ch, states[ch].model, states[ch].shape)
     end
-
-    if states[ch].amp_phase >= states[ch].amp_symmetry then
+    if states[ch].amp_reset == 2 and states[ch].amp_phase >= states[ch].amp_symmetry then
         states[ch].amp_phase = -1
     end
-
-    if states[ch].note_phase >= states[ch].note_symmetry then
+    if states[ch].lfo_reset == 2 and states[ch].lfo_phase >= states[ch].lfo_symmetry then
+        states[ch].lfo_phase = -1
+    end
+    if states[ch].note_reset == 2 and states[ch].note_phase >= states[ch].note_symmetry then
         states[ch].note_phase = -1
     end
-
-    states[ch].dcAmp = (vel/127) * 20 - 10
+    states[ch].dcAmp = vel * 5
     states[ch].note = nt
     dc_update_start()
 end
