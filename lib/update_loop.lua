@@ -1,4 +1,5 @@
 states = {}
+DC_VOICES = 4
 DC_FREQ_LIMIT = {114, 114, 101, 101, 114, 114, 114, 114, 114}
 DC_SPECIES_DNA = {
     {}, -- chromatic
@@ -17,11 +18,21 @@ DC_SPECIES_DNA = {
     {0, 12, 24, -24, 0, 0, 0, -24, 24, 19, 12},
     {0, 2, 14, 2, 0, 5, 7, 12, 10, -2, 10, 12}
 } -- 15 species discovered
-dc_update_time = 0.008
+dc_update_time = 0.012 --0.008 speed limit
 dc_update_metro = false
 dc_update_init_check = false
 shapes = {'linear','sine','logarithmic','exponential','now','wait','over','under','rebound'}
-for ch = 1, 4 do
+param_codes = 
+{
+    'mfreq', 'note', 'dcAmp', 'pw', 'pw2', 'bit', 'splash',
+    'amp_mfreq', 'amp_note', 'amp_amp', 'amp_pw', 'amp_pw2', 'amp_bit', 'amp_cycle', 'amp_symmetry', 'amp_curve', 'amp_loop', 'amp_phase', 
+    'lfo_mfreq', 'lfo_note', 'lfo_amp', 'lfo_pw', 'lfo_pw2', 'lfo_bit', 'lfo_cycle', 'lfo_symmetry', 'lfo_curve', 'lfo_loop', 'lfo_phase', 
+    'note_mfreq', 'note_note', 'note_amp', 'note_pw','note_pw2', 'note_bit', 'note_cycle', 'note_symmetry', 'note_curve', 'note_loop', 'note_phase', 
+    'transpose', 'model', 'shape',
+    'amp_reset', 'lfo_reset', 'note_reset', 'species'
+}
+
+for ch = 1, DC_VOICES do
     states[ch] = 
     {
         mfreq = 1, note = 60, dcAmp = 5, pw = 0, pw2 = 0, bit = 0, splash = 0,
@@ -33,16 +44,41 @@ for ch = 1, 4 do
     }
 end
 
-function dc_param_update_receive(new_values)
-    for ch, vals in pairs(new_values) do
-        for k, v in pairs(vals) do
-            states[ch][k] = v
+function param_to_number(in_str)
+    for k, v in pairs(param_codes) do
+        if v == in_str then 
+            return k 
         end
     end
 end
 
-function dc_set_state(ch, k, v)
-    states[ch][k] = v
+-- if v is +/-9999.9999 max, split it into 2 msg each with 4 digits, i2c only sends 16 signed int
+function send_state_value_i2c(crowidx, ch, k, v)
+    local new_v = 0
+    if v < 0 then
+        new_v = v * -1
+        new_v = new_v % 10000
+        ii.crow[crowidx].call4(3, ch, k, math.floor(new_v) * -1)
+        ii.crow[crowidx].call4(4, ch, k, math.floor((new_v % 1) * 10000) * -1)
+    else
+        new_v = v % 10000
+        ii.crow[crowidx].call4(3, ch, k, math.floor(new_v))
+        ii.crow[crowidx].call4(4, ch, k, math.floor((new_v % 1) * 10000))
+    end
+end
+
+function dc_param_update_receive(new_values)
+    for ch, vals in pairs(new_values) do
+        for k, v in pairs(vals) do
+            if ch >= 5 then    
+                crowidx, new_ch = dc_get_crow_and_channel(ch)
+                k = param_to_number(k)
+                send_state_value_i2c(crowidx, new_ch, k, v)
+            else
+                states[ch][k] = v
+            end
+        end
+    end
 end
 
 function ASL_var_saw(shape)
@@ -83,6 +119,11 @@ function ASL_bytebeat5(shape)
 end
 
 function dc_set_synth(ch, model, shape)
+    if ch >= 5 then
+        crowidx, new_ch = dc_get_crow_and_channel(ch)
+        ii.crow[crowidx].call4(1, new_ch, model, shape)
+        return
+    end 
     states[ch].model = model
     states[ch].shape = shape
     if     model == 1 then output[ch](ASL_var_saw(shapes[shape]))
@@ -124,7 +165,7 @@ function dc_update_peak(ph, pw, curve)
     return value
 end
 
-function num2freq(n)
+function num_to_freq(n)
     return 13.75 * (2 ^ ((n - 9) / 12))
 end
 
@@ -145,7 +186,7 @@ function dc_update_loop_maths(i)
     local sploosh  = s.splash
     
     max_freq = math.min(math.max(max_freq, 0.01), 1)
-    local cyc = 1/num2freq(math.min(math.max(note_up * 12.7, 0.01) + s.transpose, DC_FREQ_LIMIT[s.shape] * max_freq))
+    local cyc = 1/num_to_freq(math.min(math.max(note_up * 12.7, 0.01) + s.transpose, DC_FREQ_LIMIT[s.shape] * max_freq))
     cyc = cyc * 0.97655 -- for correct tuning
     output[i].dyn.cyc = sploosh > 0 and (math.random()*0.1 < cyc/0.1 and cyc + (cyc * 0.2 * math.random()*sploosh) or cyc + math.random()*0.002*sploosh) or cyc
     
@@ -173,7 +214,7 @@ end
 
 function dc_update_loop()
     local off_count = 0
-    for i = 1, 4 do
+    for i = 1, DC_VOICES do
         if dc_check_ASL(i) then
             dc_update_loop_maths(i)
         else
@@ -181,7 +222,7 @@ function dc_update_loop()
         end
     end
 
-    if off_count == 4 then
+    if off_count == DC_VOICES then
         dc_update_stop()
     end
 
@@ -201,6 +242,11 @@ function dc_update_init()
 end
 
 function dc_note_on(ch, nt, vel)
+    if ch >= 5 then
+        crowidx, new_ch = dc_get_crow_and_channel(ch)
+        ii.crow[crowidx].call4(2, new_ch, nt, vel)
+        return
+    end
     if dc_update_init_check == false then
         dc_update_init()
     end
@@ -219,4 +265,34 @@ function dc_note_on(ch, nt, vel)
     states[ch].dcAmp = vel * 5
     states[ch].note = nt
     dc_update_start()
+end
+
+function dc_get_crow_and_channel(ch)
+    if ch > 0 and ch <= 4 then
+        return 1, ch
+    elseif ch > 4 and ch <= 8 then
+        return 1, ch - 4
+    elseif ch > 8 and ch <= 12 then
+        return 2, ch - 8
+    elseif ch > 12 and ch <= 16 then
+        return 3, ch - 12
+    else
+        return 1, 1
+    end
+end
+
+ii.self.call4 = function(func, arg1, arg2, arg3)
+    if func == 1 then
+        -- dc_set_synth(ch, model, shape)
+        dc_set_synth(arg1, arg2, arg3)
+    elseif func == 2 then
+        -- dc_note_on(ch, nt, vel)
+        dc_note_on(arg1, arg2, arg3)
+    elseif func == 3 then -- set v XXXX.0 as states value
+        states[arg1][param_codes[arg2]] = arg3
+    elseif func == 4 then -- add v = 0.XXXX to states value
+        states[arg1][param_codes[arg2]] = states[arg1][param_codes[arg2]] + (arg3 * 0.0001)
+    else
+        print("CAW: call4")
+    end
 end

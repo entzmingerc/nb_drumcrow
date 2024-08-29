@@ -94,18 +94,19 @@ dc_preset_values = {
 local mod = require 'core/mods'
 
 -- dc_update_time = 0.008, "exponential" and "logarithmic" shapes required lower max freq
+DC_VOICES = 4
 dc_code_sent = false
 dc_code_resent = false
 dc_param_update_time = 0.25 -- sends message to crow to update parameters if they have changed, only send message if there's a change
 dc_param_update_table = {} -- table[channel][key] param values for state matrix on crow
-for j = 1, 4 do 
+for j = 1, DC_VOICES do 
     dc_param_update_table[j] = {}
 end
 dc_param_update_table_dirty = false
 dc_param_IDs = {}
 dc_trig_behavior = {"individual", "round robin", "all"}
 dc_param_behavior = {"individual", "all"}
-dc_poly_idx = 1
+dc_robin_idx = 1
 dc_param_update_metro = nil
 dc_models = {'var_saw','bytebeat','noise','FMstep','ASLsine','ASLharmonic','bytebeat5'}
 dc_shapes = {'"linear"','"sine"','"logarithmic"','"exponential"','"now"','"wait"','"over"','"under"','"rebound"'}
@@ -121,7 +122,7 @@ dc_names = {
 
 -- build dc_param_IDs, this returns a param ID string: dc_param_IDs[i]["mfreq"]
 function build_dc_param_IDs()
-    for i = 1, 4 do
+    for i = 1, DC_VOICES do
         dc_param_IDs[i] = {}
         for j = 1, #dc_names do
             dc_param_IDs[i][dc_names[j]] = "drumcrow_"..dc_names[j].."_"..i
@@ -155,7 +156,7 @@ function dc_load_preset(i, preset_values)
         params:set(dc_param_IDs[i]["synth_model"], preset_model) -- set norns model
         crow.dc_set_synth(i, preset_model, preset_shape)  -- set crow model and shape
     else
-        for j = 1, 4 do
+        for j = 1, DC_VOICES do
             for k, v in pairs(preset_values) do
                 if k ~= "model" and k ~= "shape" then
                     params:set(dc_param_IDs[j][k], v) -- set norns param
@@ -165,7 +166,7 @@ function dc_load_preset(i, preset_values)
                 dc_param_update_loop() -- update immediately
             end
         end
-        for j = 1, 4 do
+        for j = 1, DC_VOICES do
             params:set(dc_param_IDs[j]["synth_shape"], preset_shape)
             params:set(dc_param_IDs[j]["synth_model"], preset_model)
             crow.dc_set_synth(j, preset_model, preset_shape)
@@ -183,7 +184,7 @@ local function add_drumcrow_params(i)
 
     params:add_option(dc_param_IDs[i]["trig_behavior"], "trigger behavior", dc_trig_behavior, 1)
     params:set_action(dc_param_IDs[i]["trig_behavior"], function(x) 
-        for j = 1, 4 do
+        for j = 1, DC_VOICES do
             if i ~= j then
                 params:set(dc_param_IDs[j]["trig_behavior"], x) -- set all 4 params to this value
             end
@@ -192,7 +193,7 @@ local function add_drumcrow_params(i)
 
     params:add_option(dc_param_IDs[i]["param_behavior"], "param behavior", dc_param_behavior, 1)
     params:set_action(dc_param_IDs[i]["param_behavior"], function(x) 
-        for j = 1, 4 do
+        for j = 1, DC_VOICES do
             if i ~= j then
                 params:set(dc_param_IDs[j]["param_behavior"], x) -- set all 4 params to this value
             end
@@ -317,7 +318,7 @@ local function add_drumcrow_params(i)
         crow.dc_set_synth(i, params:get(dc_param_IDs[i]["synth_model"]), s) -- set this player
 
         if params:get(dc_param_IDs[i]["param_behavior"]) ~= 1 then -- set other players
-            for j = 1, 4 do
+            for j = 1, DC_VOICES do
                 if i ~= j and params:get(dc_param_IDs[j]["synth_shape"]) ~= s then
                     params:set(dc_param_IDs[j]["synth_shape"], s, true)
                     crow.dc_set_synth(j, params:get(dc_param_IDs[j]["synth_model"]), s)
@@ -334,7 +335,7 @@ local function add_drumcrow_params(i)
         crow.dc_set_synth(i, s, params:get(dc_param_IDs[i]["synth_shape"])) -- set this player
 
         if params:get(dc_param_IDs[i]["param_behavior"]) ~= 1 then -- set other players
-            for j = 1, 4 do
+            for j = 1, DC_VOICES do
                 if i ~= j and params:get(dc_param_IDs[j]["synth_model"]) ~= s then
                     params:set(dc_param_IDs[j]["synth_model"], s, true)
                     crow.dc_set_synth(j, s, params:get(dc_param_IDs[j]["synth_shape"]))
@@ -378,7 +379,7 @@ function dc_crow_code_send()
 
             -- first update the state table on crow (excluding model and shape)
             local p_val = 0 
-            for j = 1, 4 do -- for each output
+            for j = 1, DC_VOICES do -- for each output
                 for _, k in pairs(dc_names) do
                     if k ~= "model" and k ~= "shape" then
                         p_val = params:get(dc_param_IDs[j][k]) -- get the current param value
@@ -392,7 +393,7 @@ function dc_crow_code_send()
             -- then set the ASL with model and shape
             local shp = 0
             local mdl = 0
-            for j = 1, 4 do
+            for j = 1, DC_VOICES do
                 mdl = params:get(dc_param_IDs[j]["synth_model"])
                 shp = params:get(dc_param_IDs[j]["synth_shape"])
                 crow.dc_set_synth(j, mdl, shp)
@@ -488,10 +489,12 @@ function add_drumcrow_player(i)
         if b == 1 then -- individual
             crow.dc_note_on(i, note, vel)
         elseif b == 2 then -- round robin
-            dc_poly_idx = dc_poly_idx % 4 + 1
-            crow.dc_note_on(dc_poly_idx, note, vel)
+            dc_robin_idx = dc_robin_idx % DC_VOICES + 1
+            crow.dc_note_on(dc_robin_idx, note, vel)
         else -- all
-            for j = 1, 4 do crow.dc_note_on(j, note, vel) end
+            for j = 1, DC_VOICES do 
+                crow.dc_note_on(j, note, vel)
+            end
         end
     end
 
@@ -529,7 +532,7 @@ end
 function dc_param_update_add(ch, k, val)
     dc_param_update_table[ch][k] = val
     if params:get(dc_param_IDs[ch]["param_behavior"]) ~= 1 then
-        for j = 1, 4 do
+        for j = 1, DC_VOICES do
             if ch ~= j then -- update all the other params, don't trigger their actions please
                 params:set(dc_param_IDs[j][k], val, true)
                 dc_param_update_table[j][k] = val
@@ -542,7 +545,7 @@ end
 function dc_param_update_loop() -- called every param_update_time seconds, called directly when loading presets
     if dc_param_update_table_dirty == true and dc_code_sent == true then
         crow.dc_param_update_receive(dc_param_update_table)
-        for j = 1, 4 do dc_param_update_table[j] = {} end -- clear table
+        for j = 1, DC_VOICES do dc_param_update_table[j] = {} end -- clear table
         dc_param_update_table_dirty = false
     end
 end
@@ -550,10 +553,9 @@ end
 function dc_pre_init() -- called before norns script init
     dc_code_sent = false -- init to false so things don't explode
     build_dc_param_IDs() -- cook up larger strings instead of dynamically creating them during runtime
-    add_drumcrow_player(1) -- add 4 nb players to note_players, one player for each output on crow
-    add_drumcrow_player(2)
-    add_drumcrow_player(3)
-    add_drumcrow_player(4)
+    for idx = 1, DC_VOICES do
+        add_drumcrow_player(idx) -- add 4 nb players to note_players, one player for each output on crow
+    end
 end
 
 function dc_post_init()
@@ -584,3 +586,105 @@ mod.hook.register("script_post_init", "drumcrow post init", dc_post_init) -- add
 -- resending code will reset crow and thus reset the behaviors of crow inputs 1 and 2 (example: dreamsequence uses in 2)
 -- automatically turn off update flag if dcAmp is not there
 -- magical splash function (I just messed around with math.random until it sounded cool, if splash <= 0 it just skips this) 
+
+-- GRAVEYARD
+-- param_codes = 
+-- {
+--     'mfreq', 'note', 'dcAmp', 'pw', 'pw2', 'bit', 'splash',
+--     'amp_mfreq', 'amp_note', 'amp_amp', 'amp_pw', 'amp_pw2', 'amp_bit', 'amp_cycle', 'amp_symmetry', 'amp_curve', 'amp_loop', 'amp_phase', 
+--     'lfo_mfreq', 'lfo_note', 'lfo_amp', 'lfo_pw', 'lfo_pw2', 'lfo_bit', 'lfo_cycle', 'lfo_symmetry', 'lfo_curve', 'lfo_loop', 'lfo_phase', 
+--     'note_mfreq', 'note_note', 'note_amp', 'note_pw','note_pw2', 'note_bit', 'note_cycle', 'note_symmetry', 'note_curve', 'note_loop', 'note_phase', 
+--     'transpose', 'model', 'shape',
+--     'amp_reset', 'lfo_reset', 'note_reset', 'species'
+-- }
+
+-- param_codes = 
+-- {
+-- mfreq = {1, 0.01, 1},
+-- note = {2, 0, 127},
+-- dcAmp = {3, -10, 10},
+-- pw = {4, -1, 1},
+-- pw2 = {5, -10, 10},
+-- bit = {6, -10, 180},
+-- splash = {7, 0, 3},
+-- amp_mfreq = {8, -1, 1},
+-- amp_note = {9, -10, 10},
+-- amp_amp = {10, -5, 5},
+-- amp_pw = {11, -2, 2},
+-- amp_pw2 = {12, -10, 10},
+-- amp_bit = {13, -20, 20},
+-- amp_cycle = {14, 0.1, 200},
+-- amp_symmetry = {15, -2, 2},
+-- amp_curve = {16, -5, 5},
+-- amp_loop = {17, 1, 2},
+-- amp_phase = {18, -1, 1},
+-- lfo_mfreq = {19, -1, 1},
+-- lfo_note = {20, -10, 10},
+-- lfo_amp = {21, -5, 5},
+-- lfo_pw = {22, -2, 2},
+-- lfo_pw2 = {23, -10, 10},
+-- lfo_bit = {24, -20, 20},
+-- lfo_cycle = {25, 0.1, 200},
+-- lfo_symmetry = {26, -2, 2},
+-- lfo_curve = {27, -10, 10},
+-- lfo_loop = {28, 1, 2},
+-- lfo_phase = {29, -1, 1},
+-- note_mfreq = {30, -1, 1},
+-- note_note = {31, -10, 10},
+-- note_amp = {32, -5, 5},
+-- note_pw = {33, -2, 2},
+-- note_pw2 = {34, -10, 10},
+-- note_bit = {35, -20, 20},
+-- note_cycle = {36, 0.1, 200},
+-- note_symmetry = {37, -2, 2},
+-- note_curve = {38, -10, 10},
+-- note_loop = {39, 1, 2},
+-- note_phase = {40, -1, 1},
+-- transpose = {41, -120, 120},
+-- model = {42, 1, 7},
+-- shape = {43, 1, 9},
+-- amp_reset = {44, 1, 2},
+-- lfo_reset = {45, 1, 2},
+-- note_reset = {46, 1, 2},
+-- species = {47, 1, 15}
+-- }
+
+-- function rerange(val, in_min, in_max, t_min, t_max)
+--     local new_val = ((val - in_min) / (in_max - in_min)) * (t_max - t_min) + t_min
+--     if t_max == 255 then
+--         return math.floor(new_val)
+--     else
+--         return new_val
+--     end
+-- end
+
+-- function param2number(in_str)
+--     for k, v in pairs(param_codes) do
+--         if in_str == k then 
+--             return param_codes[k][1] 
+--         end
+--     end
+-- end
+
+-- function number2param(in_num)
+--     for k, v in pairs(param_codes) do
+--         if in_num == param_codes[k][1] then 
+--             return k 
+--         end
+--     end
+-- end
+-- function iitesting(a,b)
+--     ii.crow[1].call2(a,b)
+-- end
+
+-- ii.self.call2 = function(ch, k) -- get state
+--     asdf = 1
+--     for i = 1, k do
+--         ii.crow[1].call1(asdf)
+--         asdf = asdf + 1
+--     end
+-- end
+
+-- ii.self.call1 = function(v) -- rx and print
+--     print("iiCAW: "..v)
+-- end
