@@ -1,4 +1,6 @@
 # nb_drumcrow  
+==== This documentation is only like 20% complete, please come back later ====
+
 This is a mod for monome norns that turns a monome crow into a synthesizer using nb. 
 
 `nb` is a note-playing [voice library](https://github.com/sixolet/nb) for norns.  
