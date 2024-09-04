@@ -5,21 +5,21 @@ DC_A_LIMIT = {0, 1, 5, 10, 20, 40}
 dc_caw_idx = {1,1,1,1}
 dc_update_enable = {true, true, true, true}
 DC_SPECIES_DNA = {
-    {}, -- chromatic
-    {0, 2, 4, 5, 7, 9, 11}, -- major
-    {0, 2, 3, 5, 7, 9, 10}, -- minor
-    {0, 3, 5, 7, 10}, -- pentatonic
-    {0, -2, -5, -7, -10, -7, -5, 0, 5, 7, 12, 17, 19, 22, 19, 17, 15, 12},
-    {0, 0, 2, 7, 14, 21, 28, 36, 30, 18, 12},
-    {0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 14, 12, 11, 9, 7, 5, 4, 2, 0},
-    {0, 7, 0, 12, 0, 19},
-    {0, 0, 0, 0, -7, 0, 7, 14, 21, 28, 12, 12, 12, 12},
-    {0, 11, 9, 7, 5, 4, 2, 0},
-    {0, -3, -5, -7, -10, 10, 7, 5, 3, 0},
-    {0, 23, 2, 21, 4, 21, 5, 19, 7, 17, 11, 16, 12, 14, 12},
-    {0, 0, 2, 4, 5, 7, 9, 11, 14, -14, -10, -8, -7, -5, -3, -3, -1, 0},
-    {0, 12, 24, -24, 0, 0, 0, -24, 24, 19, 12},
-    {0, 2, 14, 2, 0, 5, 7, 12, 10, -2, 10, 12}
+    {}, -- chromatic, cornix
+    {0, 2, 4, 5, 7, 9, 11}, -- major, albus
+    {0, 2, 3, 5, 7, 9, 10}, -- minor, orru
+    {0, 3, 5, 7, 10}, -- pentatonic, kubaryi
+    {0, 0, -5, -7, -10, -7, -5, 0, 5, 7, 12, 17, 19, 24, 19, 17, 15, 12}, -- brachyrhynchos
+    {0, 0, 2, 7, 14, 21, 28, 36, 30, 18, 12}, -- culminatus
+    {0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 14, 12, 11, 9, 7, 5, 4, 2, 0}, -- bennetti
+    {0, 7, 0, 12, 0, 19}, -- levaillantii
+    {0, 0, 0, 0, -7, 0, 7, 14, 21, 28, 12, 12, 12, 12}, -- torquatus
+    {0, 11, 9, 7, 5, 4, 2, 0}, -- corone
+    {0, -3, -5, -7, -10, 11, 7, 5, 2, 0}, -- capensis
+    {0, 23, 2, 21, 4, 21, 5, 19, 7, 17, 11, 16, 12, 14, 12}, -- edithae
+    {0, 0, 2, 4, 5, 7, 9, 11, 14, -14, -10, -8, -7, -5, -3, -3, -1, 0}, -- enca
+    {0, 12, 24, -24, 0, 0, 0, -24, 24, 19, 12}, -- florensis
+    {0, 2, 14, 2, 0, 5, 7, 12, 10, -2, 10, 12} -- fuscicapillus
 } -- 15 species discovered
 dc_update_time = 0.01 --0.008 speed limit
 dc_update_metro = false
@@ -45,22 +45,24 @@ for ch = 1, DC_VOICES do
         a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, caw = 1, flock = 1
     }
 end
--- i2c only sends 16 signed int, 32768 upper limit, max param val is 200, so 200 * 160 = 32,000 ish, divide on receive
+-- i2c only sends 16 signed int, 32768 upper limit, max param val is 200, so 200 * 100 = 20,000 ish, divide on receive, 160 max
 function send_state_value_i2c(crowidx, ch, k, v)
-    ii.crow[crowidx].call4(5, ch, k, v * 160)
+    ii.crow[crowidx].call4(2, ch, k, v * 100)
 end
+
 function dc_synth_update_receive(new_values)
     for ch, vals in pairs(new_values) do
         if vals[1] ~= nil and vals[2] ~= nil then
             if ch >= 5 then
                 crowidx, new_ch = dc_get_crow_and_channel(ch)
-                ii.crow[crowidx].call4(4, new_ch, vals[1], vals[2])
+                ii.crow[crowidx].call4(3, new_ch, vals[1], vals[2])
             else
                 dc_set_synth(ch, vals[1], vals[2])
             end
         end
     end
 end
+
 function dc_param_update_receive(new_values)
     for ch, vals in pairs(new_values) do
         for k, v in pairs(vals) do
@@ -108,7 +110,7 @@ end
 function dc_set_synth(ch, model, shape)
     if ch >= 5 then
         crowidx, new_ch = dc_get_crow_and_channel(ch)
-        ii.crow[crowidx].call4(4, new_ch, model, shape)
+        ii.crow[crowidx].call4(3, new_ch, model, shape)
         return
     end
     local restart_update = false
@@ -134,12 +136,14 @@ function dc_set_synth(ch, model, shape)
         dc_update_start()
     end
 end
+
 function dc_update_stop()
     if dc_update_metro == true then
         dc_update_metro = false
         metro[8]:stop()
     end
 end
+
 function dc_check_ASL(ch)
     msg = output[ch].asl.dyn._names
     if msg.dcAmp ~= nil then
@@ -148,19 +152,23 @@ function dc_check_ASL(ch)
         return false
     end
 end
+
 function dc_update_acc(phase, freq, sec, looping)
     phase = phase + (freq * sec)
     phase = looping and (1 + phase) % 2 - 1 or math.min(math.max(phase, -1), 1)
     return phase
 end
+
 function dc_update_peak(ph, pw, curve)
     local value = ph < pw and (1 + ph) / (1 + pw) or ph > pw and (1 - ph) / (1 - pw) or 1
     value = value ^ curve
     return value
 end
+
 function num_to_freq(n)
     return 13.75 * (2 ^ ((n - 9) / 12))
 end
+
 function dc_update_loop_maths(i)
     local s = states[i]
     s.a_phase   = dc_update_acc( s.a_phase, s.a_cyc, dc_update_time, s.a_loop == 2)
@@ -264,10 +272,6 @@ function dc_get_crow_and_channel(ch)
         return 1, ch
     elseif ch > 4 and ch <= 8 then
         return 1, ch - 4
-    elseif ch > 8 and ch <= 12 then
-        return 2, ch - 8
-    elseif ch > 12 and ch <= 16 then
-        return 3, ch - 12
     else
         return 1, 1
     end
@@ -284,14 +288,10 @@ end
 ii.self.call4 = function(func, arg1, arg2, arg3)
     if func == 1 then -- (ch, nt, vel)
         dc_note_on(arg1, arg2, arg3)
-    elseif func == 2 then -- (ch, key, val) key is int 1-49, v XXXX.0
-        states[arg1][dc_names[arg2]] = arg3
-    elseif func == 3 then -- (ch, key, val) key is int 1-49, add v = 0.XXXX to states value
-        states[arg1][dc_names[arg2]] = states[arg1][dc_names[arg2]] + (arg3 * 0.0001)
-    elseif func == 4 then  -- (ch, model, shape)
+    elseif func == 2 then -- (ch, k, v)
+        states[arg1][dc_names[arg2]] = arg3 / 100
+    elseif func == 3 then -- (ch, model, shape)
         dc_set_synth(arg1, arg2, arg3)
-    elseif func == 5 then 
-        states[arg1][dc_names[arg2]] = arg3 / 160
     elseif func == 8 then  -- debug
         ii.crow[1].call1(arg1)
     else

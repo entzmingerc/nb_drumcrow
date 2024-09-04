@@ -93,7 +93,7 @@ dc_preset_values = {
 local mod = require 'core/mods'
 
 -- dc_update_time = 0.008, "exponential" and "logarithmic" shapes required lower max freq
-DC_VOICES = 8
+DC_VOICES = 4
 dc_code_sent = false
 dc_code_resent = false
 dc_param_update_time = 0.25 -- sends message to crow to update parameters if they have changed, only send message if there's a change
@@ -585,7 +585,7 @@ function dc_pre_init() -- called before norns script init
     dc_code_sent = false -- init to false so things don't explode
     build_dc_param_IDs() -- cook up larger strings instead of dynamically creating them during runtime
     for idx = 1, DC_VOICES do
-        add_drumcrow_player(idx) -- add 4 nb players to note_players, one player for each output on crow
+        add_drumcrow_player(idx) -- add DC_VOICES nb players to note_players, one player for each output on crow
     end
 end
 
@@ -620,15 +620,6 @@ mod.hook.register("script_post_init", "drumcrow post init", dc_post_init) -- add
 -- amp, lfo, note curve parameter is limited from 2^-5 to 2^5
 
 -- GRAVEYARD
--- k_idx = 
--- {
---     'mfreq', 'note', 'dcAmp', 'pw', 'pw2', 'bit', 'splash',
---     'a_mfreq', 'a_note', 'a_amp', 'a_pw', 'a_pw2', 'a_bit', 'a_cyc', 'a_sym', 'a_curve', 'a_loop', 'a_phase', 
---     'l_mfreq', 'l_note', 'l_amp', 'l_pw', 'l_pw2', 'l_bit', 'l_cyc', 'l_sym', 'l_curve', 'l_loop', 'l_phase', 
---     'n_mfreq', 'n_note', 'n_amp', 'n_pw','n_pw2', 'n_bit', 'n_cyc', 'n_sym', 'n_curve', 'n_loop', 'n_phase', 
---     'transpose', 'model', 'shape',
---     'a_reset', 'l_reset', 'n_reset', 'species'
--- }
 
 -- k_idx = 
 -- {
@@ -688,80 +679,6 @@ mod.hook.register("script_post_init", "drumcrow post init", dc_post_init) -- add
 --     else
 --         return new_val
 --     end
--- end
-
--- function param2number(in_str)
---     for k, v in pairs(k_idx) do
---         if in_str == k then 
---             return k_idx[k][1] 
---         end
---     end
--- end
-
--- function number2param(in_num)
---     for k, v in pairs(k_idx) do
---         if in_num == k_idx[k][1] then 
---             return k 
---         end
---     end
--- end
--- function iitesting(a,b)
---     ii.crow[1].call2(a,b)
--- end
-
--- ii.self.call2 = function(ch, k) -- get state
---     asdf = 1
---     for i = 1, k do
---         ii.crow[1].call1(asdf)
---         asdf = asdf + 1
---     end
--- end
-
--- ii.self.call1 = function(v) -- rx and print
---     print("iiCAW: "..v)
--- end
--- value = value ^ (2 ^ curve)
--- crow.dc_set_synth(i, preset_model, preset_shape)  -- set crow model and shape
-
---     if params:get(dc_param_IDs[i]["param_behavior"]) == 1 then
---         for k, v in pairs(preset_values) do
---             if k ~= "model" and k ~= "shape" then
---                 print(i, k, v)
---                 params:set(dc_param_IDs[i][k], v, true) -- set norns param
---                 dc_param_update_table[i][k] = v -- set crow state
---                 dc_param_update_table_dirty = true
---                 dc_param_update_loop() -- update immediately, one value at a time
---             end
---         end
---         -- params:set(dc_param_IDs[i]["model"], preset_model) -- set norns model
---         -- params:set(dc_param_IDs[i]["shape"], preset_shape) -- set norns shape
---         -- dc_synth_update_table[i][1] = preset_model
---         -- dc_synth_update_table[i][2] = preset_shape
---     else
---         for j = 1, DC_VOICES do
---             for k, v in pairs(preset_values) do
---                 if k ~= "model" and k ~= "shape" then
---                     print(i, k, v)
---                     params:set(dc_param_IDs[j][k], v, true) -- set norns param
---                     dc_param_update_table[j][k] = v -- set crow state
---                     dc_param_update_table_dirty = true
---                     dc_param_update_loop() -- update immediately, one value at a time
---                 end
---             end
---         end
---         -- for j = 1, DC_VOICES do
---         --     dc_synth_update_model(j, preset_model)
---         --     dc_synth_update_shape(j, preset_shape)
---         --     -- params:set(dc_param_IDs[j]["model"], preset_model)
---         --     -- params:set(dc_param_IDs[j]["shape"], preset_shape)
---         --     -- dc_synth_update_table[j][1] = preset_model
---         --     -- dc_synth_update_table[j][2] = preset_shape
---         -- end
---     end
---     dc_synth_update_model(i, preset_model)
---     dc_synth_update_shape(i, preset_shape)
---     -- dc_param_update_table_dirty = true
---     -- dc_synth_update_table_dirty = true
 -- end
 
 -- -- v is +/-9999.9999, split into 2 msg each 4 digits, i2c only sends 16 signed int
