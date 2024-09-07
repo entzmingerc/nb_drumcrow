@@ -8,6 +8,7 @@
 -- 1) go to update_loop.lua and add a new DNA sequence to DC_SPECIES_DNA
 -- 2) add species of crow to dc_species_names https://en.wikipedia.org/wiki/Crow
 -- ~~~~~ DNA Sequence Notes ~~~~~
+-- needs to be at least 2 entries
 -- bitcrush amount == number of volts per octave
 -- DNA sequence == the quantizer scale that is applied across each octave
 -- fixed to 12 step temperament so that low frequency output values get quantized to melodic sequences when bitcrush = 1.0
@@ -31,11 +32,12 @@ dc_preset_names = {'init', 'kick', 'snare', 'hihat', 'CV trigger', 'CV envelope'
 dc_preset_values = {
 { -- init, oscillator, decay envelope VCA, var_saw model, sine shape
     mfreq = 1, note = 60, dcAmp = 0, pw = 0, pw2 = 0, bit = 0, splash = 0,
-    a_mfreq = 0, a_note = 0, a_amp = 1, a_pw = 0, a_pw2 = 0, a_bit = 0, a_cyc = 2, a_sym = -1, a_curve = 4, a_loop = 1, a_phase = 1, 
+    a_mfreq = 0, a_note = 0, a_amp = 1, a_pw = 0, a_pw2 = 0, a_bit = 0, a_cyc = 2, a_sym = -1, a_curve = 2, a_loop = 1, a_phase = 1, 
     l_mfreq = 0, l_note = 0, l_amp = 0, l_pw = 0, l_pw2 = 0, l_bit = 0, l_cyc = 6.1, l_sym = 0, l_curve = 1, l_loop = 2, l_phase = -1, 
     n_mfreq = 0, n_note = 0, n_amp = 0, n_pw = 0, n_pw2 = 0, n_bit = 0, n_cyc = 10, n_sym = -1, n_curve = 4, n_loop = 1, n_phase = 1, 
     transpose = 0, model = 1, shape = 2,
-    a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, caw = 1, flock = 1
+    a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, birdsong = 1, flock = 1,
+    mut = 1, a_mut = 0, l_mut = 0, n_mut = 0
 },
 { -- kick, oscillator, fast pitch modulation envelope, var_saw model, rebound shape
     mfreq = 1, note = 60, dcAmp = 0, pw = 0, pw2 = 0, bit = 0, splash = 0,
@@ -43,7 +45,8 @@ dc_preset_values = {
     l_mfreq = 0, l_note = 0, l_amp = 0, l_pw = 0, l_pw2 = 0, l_bit = 0, l_cyc = 6.1, l_sym = 0, l_curve = 1, l_loop = 2, l_phase = -1, 
     n_mfreq = 0, n_note = 5, n_amp = 0, n_pw = 0, n_pw2 = 0, n_bit = 0, n_cyc = 4.02, n_sym = -1, n_curve = 16, n_loop = 1, n_phase = 1, 
     transpose = -24, model = 1, shape = 9,
-    a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, caw = 1, flock = 1
+    a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, birdsong = 1, flock = 1,
+    mut = 1, a_mut = 0, l_mut = 0, n_mut = 0
 },
 { -- snare, oscillator, fast amplitude cycle, noise model, linear shape
     mfreq = 1, note = 60, dcAmp = 0, pw = 0.39, pw2 = 3.08, bit = 0, splash = 0,
@@ -51,7 +54,8 @@ dc_preset_values = {
     l_mfreq = 0, l_note = 0, l_amp = 0, l_pw = 0, l_pw2 = 0, l_bit = 0, l_cyc = 6.1, l_sym = 0, l_curve = 1, l_loop = 2, l_phase = -1, 
     n_mfreq = 0, n_note = 3, n_amp = 0, n_pw = 0, n_pw2 = 0, n_bit = 0, n_cyc = 2.6, n_sym = -1, n_curve = 1, n_loop = 1, n_phase = 1, 
     transpose = 24, model = 3, shape = 2,
-    a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, caw = 1, flock = 1
+    a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, birdsong = 1, flock = 1,
+    mut = 1, a_mut = 0, l_mut = 0, n_mut = 0
 },
 { -- hihat, oscillator, fast amplitude cycle, noise model, rebound shape
     mfreq = 1, note = 60, dcAmp = 0, pw = 0.66, pw2 = 3.44, bit = 0, splash = 0,
@@ -59,7 +63,8 @@ dc_preset_values = {
     l_mfreq = 0, l_note = 0, l_amp = 0, l_pw = 0, l_pw2 = 0, l_bit = 0, l_cyc = 6.1, l_sym = 0, l_curve = 1, l_loop = 2, l_phase = -1, 
     n_mfreq = 0, n_note = 3, n_amp = 0, n_pw = 0, n_pw2 = 0, n_bit = 0, n_cyc = 2.6, n_sym = -1, n_curve = 1, n_loop = 1, n_phase = 1, 
     transpose = 24, model = 3, shape = 9,
-    a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, caw = 1, flock = 1
+    a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, birdsong = 1, flock = 1,
+    mut = 1, a_mut = 0, l_mut = 0, n_mut = 0
 },
 { -- CV trigger, requires "var_saw" model and "now" shape, a_cyc controls gate length
     mfreq = 1, note = 60, dcAmp = 0, pw = 1, pw2 = 0, bit = 0, splash = 0,
@@ -67,7 +72,8 @@ dc_preset_values = {
     l_mfreq = 0, l_note = 0, l_amp = 0, l_pw = 0, l_pw2 = 0, l_bit = 0, l_cyc = 6.1, l_sym = 0, l_curve = 1, l_loop = 2, l_phase = -1, 
     n_mfreq = 0, n_note = 0, n_amp = 0, n_pw = 0, n_pw2 = 0, n_bit = 0, n_cyc = 10, n_sym = -1, n_curve = 1, n_loop = 1, n_phase = 1, 
     transpose = 0, model = 1, shape = 5,
-    a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, caw = 1, flock = 1
+    a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, birdsong = 1, flock = 1,
+    mut = 1, a_mut = 0, l_mut = 0, n_mut = 0
 },
 { -- CV decay envelope, requires "var_saw" model and "now" shape, modulate amplitude to control envelope shape
     mfreq = 1, note = 60, dcAmp = 0, pw = 1, pw2 = 0, bit = 0, splash = 0,
@@ -75,7 +81,8 @@ dc_preset_values = {
     l_mfreq = 0, l_note = 0, l_amp = 0, l_pw = 0, l_pw2 = 0, l_bit = 0, l_cyc = 4.05, l_sym = 0, l_curve = 1, l_loop = 2, l_phase = -1, 
     n_mfreq = 0, n_note = 0, n_amp = 0, n_pw = 0, n_pw2 = 0, n_bit = 0, n_cyc = 1.09, n_sym = -1, n_curve = 1, n_loop = 1, n_phase = 1, 
     transpose = 0, model = 1, shape = 5,
-    a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, caw = 1, flock = 1
+    a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, birdsong = 1, flock = 1,
+    mut = 1, a_mut = 0, l_mut = 0, n_mut = 0
 },
 { -- scale, requires "var_saw" model and "now" shape, n_to_dcAmp ON which maps midi note to 1/12 V per note. bitcrush at 1 and species at 1 for chromatic scale
 -- modulating amplitude with internal envelopes will wiggle the selected note around while quantized to the selected species scale. Try various species. 
@@ -84,7 +91,8 @@ dc_preset_values = {
     l_mfreq = 0, l_note = 0, l_amp = 0, l_pw = 0, l_pw2 = 0, l_bit = 0, l_cyc = 0.5, l_sym = 0, l_curve = 1, l_loop = 1, l_phase = -1, 
     n_mfreq = 0, n_note = 0, n_amp = 0, n_pw = 0, n_pw2 = 0, n_bit = 0, n_cyc = 0.5, n_sym = -1, n_curve = 1, n_loop = 1, n_phase = 1, 
     transpose = 0, model = 1, shape = 5,
-    a_reset = 1, l_reset = 0, n_reset = 1, species = 1, n_to_dcAmp = 2, a_limit = 4, caw = 1, flock = 1
+    a_reset = 1, l_reset = 0, n_reset = 1, species = 1, n_to_dcAmp = 2, a_limit = 4, birdsong = 1, flock = 1,
+    mut = 1, a_mut = 0, l_mut = 0, n_mut = 0
 },
 }
 
@@ -119,15 +127,17 @@ dc_names = {
     "l_mfreq", "l_note", "l_amp", "l_pw", "l_pw2", "l_bit", "l_cyc", "l_sym", "l_curve", "l_loop", "l_phase",
     "n_mfreq", "n_note", "n_amp", "n_pw", "n_pw2", "n_bit", "n_cyc", "n_sym", "n_curve", "n_loop", "n_phase",
     "transpose", "model", "shape",
-    "a_reset", "l_reset", "n_reset", "species", "n_to_dcAmp", "a_limit", "caw", "flock"
-} -- 51 params, use to convert param idx number to a string
+    "a_reset", "l_reset", "n_reset", "species", "n_to_dcAmp", "a_limit", "birdsong", "flock",
+    "mut", "a_mut", "l_mut", "n_mut"
+} -- use to convert param idx number to a string
 dc_idx = {
     mfreq = 1, note = 2, dcAmp = 3, pw = 4, pw2 = 5, bit = 6, splash = 7,
     a_mfreq = 8,  a_note = 9,  a_amp = 10, a_pw = 11, a_pw2 = 12, a_bit = 13, a_cyc = 14, a_sym = 15, a_curve = 16, a_loop = 17, a_phase = 18, 
     l_mfreq = 19, l_note = 20, l_amp = 21, l_pw = 22, l_pw2 = 23, l_bit = 24, l_cyc = 25, l_sym = 26, l_curve = 27, l_loop = 28, l_phase = 29, 
     n_mfreq = 30, n_note = 31, n_amp = 32, n_pw = 33, n_pw2 = 34, n_bit = 35, n_cyc = 36, n_sym = 37, n_curve = 38, n_loop = 39, n_phase = 40, 
     transpose = 41, model = 42, shape = 43,
-    a_reset = 44, l_reset = 45, n_reset = 46, species = 47, n_to_dcAmp = 48, a_limit = 49, caw = 50, flock = 51
+    a_reset = 44, l_reset = 45, n_reset = 46, species = 47, n_to_dcAmp = 48, a_limit = 49, birdsong = 50, flock = 51,
+    mut = 52, a_mut = 53, l_mut = 54, n_mut = 55
 } -- use to convert param string to a number idx
 
 -- build dc_param_IDs, this returns a param ID string: dc_param_IDs[i]["mfreq"]
@@ -171,21 +181,12 @@ function dc_load_preset(i, preset_values)
     dc_param_update_loop() -- update immediately
 end
 
--- function dc_load_preset(i, preset_values)
---     for name, v in pairs(preset_values) do
---         if name ~= "model" and name ~= "shape" then
---             params:set(dc_param_IDs[i][name], v, true) -- set norns param
---             dc_param_update_add(i, dc_idx[name], v) -- set crow param
---             dc_param_update_loop() -- update immediately
---         end
---     end
---     dc_synth_update_model_and_shape(i, preset_values["model"], preset_values["shape"])
--- end
-
 -- create drumcrow parameter menu for nb to show/hide
 local function add_drumcrow_params(i)
-    params:add_group(dc_param_IDs[i]["group"], "drumcrow voice "..i, 8 + 12 + 12 + 12 + 12) -- keep track number of params for the group
+    params:add_group(dc_param_IDs[i]["group"], "drumcrow voice "..i, 5 + 16 + 13 + 13 + 13) -- keep track number of params for the group
     params:hide(dc_param_IDs[i]["group"])
+
+    -- 5 settings params
     params:add_trigger(dc_param_IDs[i]["send_code"], "resend code to crow")
     params:set_action( dc_param_IDs[i]["send_code"], function() dc_resend_code() end)
     params:add_option( dc_param_IDs[i]["param_behavior"], "param behavior", dc_param_behavior, 1)
@@ -205,9 +206,41 @@ local function add_drumcrow_params(i)
         end
     end)
     params:add_option( dc_param_IDs[i]["preset"], "synth preset", dc_preset_names, 1)
-    params:add_trigger(dc_param_IDs[i]["load_preset"], "load preset")
+    params:add_trigger(dc_param_IDs[i]["load_preset"], "load preset") -- 5 params
+    params:set_action( dc_param_IDs[i]["load_preset"], function() 
+        if dc_code_sent == false then
+            print("CAW: resend code to crow! load preset")
+            return 
+        end
+        if params:get( dc_param_IDs[i]["param_behavior"]) == 2 then
+            for j = 1, DC_VOICES do
+                dc_load_preset(j, dc_preset_values[params:get(dc_param_IDs[i]["preset"])]) -- set jth voice to this preset
+                params:set(dc_param_IDs[j]["preset"], params:get(dc_param_IDs[i]["preset"])) -- set jth preset selection to this preset
+            end
+        else
+            dc_load_preset(i, dc_preset_values[params:get(dc_param_IDs[i]["preset"])])
+        end
+    end)
+
+    -- oscillator parameters
     params:add_option( dc_param_IDs[i]["shape"], "synth shape", dc_shapes, 2)
     params:add_option( dc_param_IDs[i]["model"], "synth model", dc_models, 1)
+    params:set_action( dc_param_IDs[i]["shape"], function(s)
+        if dc_code_sent == false then 
+            print("CAW: resend code to crow! synth shape")
+            return 
+        end
+        dc_synth_update_model_and_shape(i, params:get(dc_param_IDs[i]["model"]), s)
+    end)
+    params:set_action( dc_param_IDs[i]["model"], function(m)
+        if dc_code_sent == false then 
+            print("CAW: resend code to crow! synth model")
+            return 
+        end
+        dc_synth_update_model_and_shape(i, m, params:get(dc_param_IDs[i]["shape"]))
+    end)
+    params:add_option( dc_param_IDs[i]["birdsong"], "birdsong", dc_species_names, 1)
+    params:set_action( dc_param_IDs[i]["birdsong"], function(x) dc_param_update_add(i, dc_idx["birdsong"], x) end)
     params:add_option( dc_param_IDs[i]["flock"], "flock size", build_flock_size(), 1)
     params:set_action( dc_param_IDs[i]["flock"], function(x)
         if params:get(dc_param_IDs[i]["param_behavior"]) == 2 then
@@ -217,11 +250,7 @@ local function add_drumcrow_params(i)
                 end
             end
         end
-    end) -- 8 params
-
-    -- oscillator parameters
-    params:add_option( dc_param_IDs[i]["caw"], "birdsong", dc_species_names, 1)
-    params:set_action( dc_param_IDs[i]["caw"], function(x) dc_param_update_add(i, dc_idx["caw"], x) end)
+    end)
     params:add_option( dc_param_IDs[i]["n_to_dcAmp"], "midi note -> amp", {"off", "on"}, 1)
     params:set_action( dc_param_IDs[i]["n_to_dcAmp"], function(x) dc_param_update_add(i, dc_idx["n_to_dcAmp"], x) end)
     params:add_control(dc_param_IDs[i]["mfreq"], "max freq", controlspec.new(0.01,1,"lin",0.005, dc_preset_values[1]["mfreq"], "", 0.005, false))
@@ -238,12 +267,14 @@ local function add_drumcrow_params(i)
     params:set_action( dc_param_IDs[i]["pw2"], function(x) dc_param_update_add(i, dc_idx["pw2"], x) end)
     params:add_control(dc_param_IDs[i]["bit"], "^^bitcrush", controlspec.new(-10,60,"lin",0.1, dc_preset_values[1]["bit"], "", 1/700, false))
     params:set_action( dc_param_IDs[i]["bit"], function(x) dc_param_update_add(i, dc_idx["bit"], x) end)
+    params:add_control(dc_param_IDs[i]["mut"], "^^mutate", controlspec.new(-5,5,"lin",0.01, dc_preset_values[1]["mut"]))
+    params:set_action( dc_param_IDs[i]["mut"], function(x) dc_param_update_add(i, dc_idx["mut"], x) end)
     params:add_option( dc_param_IDs[i]["species"], "^^corvus", dc_species_names, 1)
     params:set_action( dc_param_IDs[i]["species"], function(x) dc_param_update_add(i, dc_idx["species"], x) end)
     params:add_option( dc_param_IDs[i]["a_limit"], "^^amp limit pre-bit", {"± 0 V", "± 1 V", "± 5 V", "± 10 V", "± 20 V", "± 40 V"}, 4)
     params:set_action( dc_param_IDs[i]["a_limit"], function(x) dc_param_update_add(i, dc_idx["a_limit"], x) end)
     params:add_control(dc_param_IDs[i]["splash"], "splash", controlspec.new(0,3,"lin",0.01, dc_preset_values[1]["splash"], "", 1/600, false))
-    params:set_action( dc_param_IDs[i]["splash"], function(x) dc_param_update_add(i, dc_idx["splash"], x) end) -- 12 params
+    params:set_action( dc_param_IDs[i]["splash"], function(x) dc_param_update_add(i, dc_idx["splash"], x) end) -- 16 oscillator params
 
     -- amplitude envelope parameters
     params:add_control(dc_param_IDs[i]["a_mfreq"], "amp -> max freq", controlspec.new(-1,1,"lin",0.005, dc_preset_values[1]["a_mfreq"], "", 0.005, false))
@@ -258,6 +289,8 @@ local function add_drumcrow_params(i)
     params:set_action( dc_param_IDs[i]["a_pw2"], function(x) dc_param_update_add(i, dc_idx["a_pw2"], x) end)
     params:add_control(dc_param_IDs[i]["a_bit"], "amp -> bitcrush", controlspec.new(-20,20,"lin",0.01, dc_preset_values[1]["a_bit"], "", 0.0025, false))
     params:set_action( dc_param_IDs[i]["a_bit"], function(x) dc_param_update_add(i, dc_idx["a_bit"], x) end)
+    params:add_control(dc_param_IDs[i]["a_mut"], "amp -> mutate", controlspec.new(-10,10,"lin",0.001, dc_preset_values[1]["a_mut"], "", 1/200, false))
+    params:set_action( dc_param_IDs[i]["a_mut"], function(x) dc_param_update_add(i, dc_idx["a_mut"], x) end)
     params:add_control(dc_param_IDs[i]["a_cyc"], "amp cycle freq", controlspec.new(0.1, 200, 'exp', 0, dc_preset_values[1]["a_cyc"], "", 0.002, false))
     params:set_action( dc_param_IDs[i]["a_cyc"], function(x) dc_param_update_add(i, dc_idx["a_cyc"], x) end)
     params:add_control(dc_param_IDs[i]["a_sym"], "amp symmetry", controlspec.new(-2,2,"lin",0.01, dc_preset_values[1]["a_sym"], "", 0.005, false))
@@ -268,8 +301,8 @@ local function add_drumcrow_params(i)
     params:set_action( dc_param_IDs[i]["a_loop"], function(x) dc_param_update_add(i, dc_idx["a_loop"], x) end)
     params:add_option( dc_param_IDs[i]["a_reset"], "amp reset", {"off", "on"}, 2)
     params:set_action( dc_param_IDs[i]["a_reset"], function(x) dc_param_update_add(i, dc_idx["a_reset"], x) end)
-    params:add_control(dc_param_IDs[i]["a_phase"], "a_phase", controlspec.new(-1,1,"lin",0.0005, dc_preset_values[1]["a_phase"], "", 0.002, false)) -- 12 params
-    params:hide(dc_param_IDs[i]["a_phase"])
+    params:add_control(dc_param_IDs[i]["a_phase"], "a_phase", controlspec.new(-1,1,"lin",0.0005, dc_preset_values[1]["a_phase"], "", 0.002, false))
+    params:hide(dc_param_IDs[i]["a_phase"]) -- 13 params
 
     -- LFO parameters
     params:add_control(dc_param_IDs[i]["l_mfreq"], "lfo -> max freq", controlspec.new(-1,1,"lin",0.005, dc_preset_values[1]["l_mfreq"], "", 0.005, false))
@@ -278,24 +311,26 @@ local function add_drumcrow_params(i)
     params:set_action( dc_param_IDs[i]["l_note"], function(x) dc_param_update_add(i, dc_idx["l_note"], x) end)
     params:add_control(dc_param_IDs[i]["l_amp"], "lfo -> amplitude", controlspec.new(-5,5,"lin",0.01, dc_preset_values[1]["l_amp"]))
     params:set_action( dc_param_IDs[i]["l_amp"], function(x) dc_param_update_add(i, dc_idx["l_amp"], x) end)
-    params:add_control(dc_param_IDs[i]["l_pw"], "lfo -> pulse width", controlspec.new(-2,2,"lin",0.001, dc_preset_values[1]["l_pw"], "", 0.005, false))
+    params:add_control(dc_param_IDs[i]["l_pw"], "lfo -> pulse width", controlspec.new(-2,2,"lin",0.001, dc_preset_values[1]["l_pw"], "", 1/200, false))
     params:set_action( dc_param_IDs[i]["l_pw"], function(x) dc_param_update_add(i, dc_idx["l_pw"], x) end)
-    params:add_control(dc_param_IDs[i]["l_pw2"], "lfo -> pulse width 2", controlspec.new(-10,10,"lin",0.01, dc_preset_values[1]["l_pw2"], "", 0.005, false))
+    params:add_control(dc_param_IDs[i]["l_pw2"], "lfo -> pulse width 2", controlspec.new(-10,10,"lin",0.01, dc_preset_values[1]["l_pw2"], "", 1/200, false))
     params:set_action( dc_param_IDs[i]["l_pw2"], function(x) dc_param_update_add(i, dc_idx["l_pw2"], x) end)
     params:add_control(dc_param_IDs[i]["l_bit"], "lfo -> bitcrush", controlspec.new(-20,20,"lin",0.01, dc_preset_values[1]["l_bit"], "", 0.0025, false))
     params:set_action( dc_param_IDs[i]["l_bit"], function(x) dc_param_update_add(i, dc_idx["l_bit"], x) end)
+    params:add_control(dc_param_IDs[i]["l_mut"], "lfo -> mutate", controlspec.new(-10,10,"lin",0.001, dc_preset_values[1]["l_mut"], "", 1/200, false))
+    params:set_action( dc_param_IDs[i]["l_mut"], function(x) dc_param_update_add(i, dc_idx["l_mut"], x) end)
     params:add_control(dc_param_IDs[i]["l_cyc"], "lfo cycle freq", controlspec.new(0.1, 200, 'exp', 0, dc_preset_values[1]["l_cyc"], "", 0.002, false))
     params:set_action( dc_param_IDs[i]["l_cyc"], function(x) dc_param_update_add(i, dc_idx["l_cyc"], x) end)
-    params:add_control(dc_param_IDs[i]["l_sym"], "lfo symmetry", controlspec.new(-2,2,"lin",0.01, dc_preset_values[1]["l_sym"], "", 0.005, false))
+    params:add_control(dc_param_IDs[i]["l_sym"], "lfo symmetry", controlspec.new(-2,2,"lin",0.01, dc_preset_values[1]["l_sym"], "", 1/200, false))
     params:set_action( dc_param_IDs[i]["l_sym"], function(x) dc_param_update_add(i, dc_idx["l_sym"], x) end)
-    params:add_control(dc_param_IDs[i]["l_curve"], "lfo curve", controlspec.new(0.03125,32,"exp", 0.01, dc_preset_values[1]["l_curve"], "", 0.005, false))
+    params:add_control(dc_param_IDs[i]["l_curve"], "lfo curve", controlspec.new(0.03125,32,"exp", 0.01, dc_preset_values[1]["l_curve"], "", 1/200, false))
     params:set_action( dc_param_IDs[i]["l_curve"], function(x) dc_param_update_add(i, dc_idx["l_curve"], x) end)
     params:add_option( dc_param_IDs[i]["l_loop"], "lfo loop", {"off", "on"}, 2)
     params:set_action( dc_param_IDs[i]["l_loop"], function(x) dc_param_update_add(i, dc_idx["l_loop"], x) end)
     params:add_option( dc_param_IDs[i]["l_reset"], "lfo reset", {"off", "on"}, 1)
     params:set_action( dc_param_IDs[i]["l_reset"], function(x) dc_param_update_add(i, dc_idx["l_reset"], x) end)
-    params:add_control(dc_param_IDs[i]["l_phase"], "l_phase", controlspec.new(-1,1,"lin",0.0005, dc_preset_values[1]["l_phase"], "", 0.002, false)) -- 12 params
-    params:hide(dc_param_IDs[i]["l_phase"])
+    params:add_control(dc_param_IDs[i]["l_phase"], "l_phase", controlspec.new(-1,1,"lin",0.0005, dc_preset_values[1]["l_phase"], "", 0.002, false))
+    params:hide(dc_param_IDs[i]["l_phase"]) -- 13 params
 
     -- note envelope parameters
     params:add_control(dc_param_IDs[i]["n_mfreq"], "note -> max freq", controlspec.new(-1,1,"lin",0.005, dc_preset_values[1]["n_mfreq"], "", 0.005, false))
@@ -310,6 +345,8 @@ local function add_drumcrow_params(i)
     params:set_action( dc_param_IDs[i]["n_pw2"], function(x) dc_param_update_add(i, dc_idx["n_pw2"], x) end)
     params:add_control(dc_param_IDs[i]["n_bit"], "note -> bitcrush", controlspec.new(-20,20,"lin",0.01, dc_preset_values[1]["n_bit"], "", 0.0025, false))
     params:set_action( dc_param_IDs[i]["n_bit"], function(x) dc_param_update_add(i, dc_idx["n_bit"], x) end)
+    params:add_control(dc_param_IDs[i]["n_mut"], "note -> mutate", controlspec.new(-10,10,"lin",0.001, dc_preset_values[1]["n_mut"], "", 1/200, false))
+    params:set_action( dc_param_IDs[i]["n_mut"], function(x) dc_param_update_add(i, dc_idx["n_mut"], x) end)
     params:add_control(dc_param_IDs[i]["n_cyc"], "note cycle freq", controlspec.new(0.1, 200, 'exp', 0, dc_preset_values[1]["n_cyc"], "", 0.002, false))
     params:set_action( dc_param_IDs[i]["n_cyc"], function(x) dc_param_update_add(i, dc_idx["n_cyc"], x) end)
     params:add_control(dc_param_IDs[i]["n_sym"], "note symmetry", controlspec.new(-2,2,"lin",0.01, dc_preset_values[1]["n_sym"], "", 0.005, false))
@@ -320,39 +357,8 @@ local function add_drumcrow_params(i)
     params:set_action( dc_param_IDs[i]["n_loop"], function(x) dc_param_update_add(i, dc_idx["n_loop"], x) end)
     params:add_option( dc_param_IDs[i]["n_reset"], "note reset", {"off", "on"}, 2)
     params:set_action( dc_param_IDs[i]["n_reset"], function(x) dc_param_update_add(i, dc_idx["n_reset"], x) end)
-    params:add_control(dc_param_IDs[i]["n_phase"], "n_phase", controlspec.new(-1,1,"lin",0.0005, dc_preset_values[1]["n_phase"], "", 0.002, false)) -- 12 params
-    params:hide(dc_param_IDs[i]["n_phase"])
-
-    params:set_action(dc_param_IDs[i]["load_preset"], function() 
-        if dc_code_sent == false then
-            print("CAW: resend code to crow! load preset")
-            return 
-        end
-        if params:get(dc_param_IDs[i]["param_behavior"]) == 2 then
-            for j = 1, DC_VOICES do
-                dc_load_preset(j, dc_preset_values[params:get(dc_param_IDs[i]["preset"])]) -- set jth voice to this preset
-                params:set(dc_param_IDs[j]["preset"], params:get(dc_param_IDs[i]["preset"])) -- set jth preset selection to this preset
-            end
-        else
-            dc_load_preset(i, dc_preset_values[params:get(dc_param_IDs[i]["preset"])])
-        end
-    end)
-
-    params:set_action(dc_param_IDs[i]["shape"], function(s)
-        if dc_code_sent == false then 
-            print("CAW: resend code to crow! synth shape")
-            return 
-        end
-        dc_synth_update_model_and_shape(i, params:get(dc_param_IDs[i]["model"]), s)
-    end)
-
-    params:set_action(dc_param_IDs[i]["model"], function(m)
-        if dc_code_sent == false then 
-            print("CAW: resend code to crow! synth model")
-            return 
-        end
-        dc_synth_update_model_and_shape(i, m, params:get(dc_param_IDs[i]["shape"]))
-    end)
+    params:add_control(dc_param_IDs[i]["n_phase"], "n_phase", controlspec.new(-1,1,"lin",0.0005, dc_preset_values[1]["n_phase"], "", 0.002, false))
+    params:hide(dc_param_IDs[i]["n_phase"]) -- 13 params
 end
 
 function dc_resend_code()
