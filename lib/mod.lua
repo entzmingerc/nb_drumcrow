@@ -19,21 +19,20 @@
 -- WMD geiger counter wavetables for inspiration https://cdn.shopify.com/s/files/1/0977/3366/files/GeigerCounterWaveTables-hires.pdf?v=1678297681
 -- easing functions for inspiration https://easings.net/
 dc_species_names = {
-    'cornix', 'albus', 'orru', 'kubaryi', 'brachyrhynchos', 
-    'culminatus', 'bennetti', 'levaillantii', 'torquatus', 'corone',
-    'capensis', 'edithae', 'enca', 'florensis', 'fuscicapillus'
-} -- 15 species discovered
+    'off', 'cornix', 'orru', 'kubaryi', 'levaillantii', 'culminatus', 'bennetti',  'corone',
+    'edithae', 'enca', 'florensis', 'fuscicapillus', 'torquatus', 'brachyrhynchos'
+} -- 13 species cataloged
 
 -- SYNTH PRESETS
 -- 1) add the name to dc_preset_names
 -- 2) make a new entry in the correct location in dc_preset_values
 -- 3) make sure each param has a value, use 'init' values for default values
-dc_preset_names = {'init', 'kick', 'snare', 'hihat', 'CV trigger', 'CV envelope', 'CV scale'}
+dc_preset_names = {'init', 'kick', 'snare', 'hihat', 'CV trigger', 'CV envelope', 'CV pitch'}
 dc_preset_values = {
 { -- init, oscillator, decay envelope VCA, var_saw model, sine shape
     mfreq = 1, note = 60, dcAmp = 0, pw = 0, pw2 = 0, bit = 0, splash = 0,
-    a_mfreq = 0, a_note = 0, a_amp = 1, a_pw = 0, a_pw2 = 0, a_bit = 0, a_cyc = 2, a_sym = -1, a_curve = 2, a_loop = 1, a_phase = 1, 
-    l_mfreq = 0, l_note = 0, l_amp = 0, l_pw = 0, l_pw2 = 0, l_bit = 0, l_cyc = 6.1, l_sym = 0, l_curve = 1, l_loop = 2, l_phase = -1, 
+    a_mfreq = 0, a_note = 0, a_amp = 1, a_pw = 0, a_pw2 = 0, a_bit = 0, a_cyc = 3, a_sym = -1, a_curve = 2, a_loop = 1, a_phase = 1, 
+    l_mfreq = 0, l_note = 0, l_amp = 0, l_pw = 0, l_pw2 = 0, l_bit = 0, l_cyc = 2.5, l_sym = 0, l_curve = 1, l_loop = 2, l_phase = -1, 
     n_mfreq = 0, n_note = 0, n_amp = 0, n_pw = 0, n_pw2 = 0, n_bit = 0, n_cyc = 10, n_sym = -1, n_curve = 4, n_loop = 1, n_phase = 1, 
     transpose = 0, model = 1, shape = 2,
     a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, birdsong = 1, flock = 1,
@@ -84,8 +83,8 @@ dc_preset_values = {
     a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, birdsong = 1, flock = 1,
     mut = 1, a_mut = 0, l_mut = 0, n_mut = 0
 },
-{ -- scale, requires "var_saw" model and "now" shape, n_to_dcAmp ON which maps midi note to 1/12 V per note. bitcrush at 1 and species at 1 for chromatic scale
--- modulating amplitude with internal envelopes will wiggle the selected note around while quantized to the selected species scale. Try various species. 
+{ -- CV pitch, requires "var_saw" model and "now" shape, n_to_dcAmp ON which maps midi note to 1/12 V per note. bitcrush at 1 for 1 V/oct
+  -- modulating amplitude will move the selected note around while being quantized to the selected species scale 
     mfreq = 1, note = 60, dcAmp = 0, pw = 1, pw2 = 0, bit = 1, splash = 0,
     a_mfreq = 0, a_note = 0, a_amp = 0, a_pw = 0, a_pw2 = 0, a_bit = 0, a_cyc = 0.5, a_sym = 1, a_curve = 1, a_loop = 1, a_phase = 1, 
     l_mfreq = 0, l_note = 0, l_amp = 0, l_pw = 0, l_pw2 = 0, l_bit = 0, l_cyc = 0.5, l_sym = 0, l_curve = 1, l_loop = 1, l_phase = -1, 
@@ -101,7 +100,7 @@ dc_preset_values = {
 local mod = require 'core/mods'
 
 -- dc_update_time = 0.008, "exponential" and "logarithmic" shapes required lower max freq
-DC_VOICES = 4
+DC_VOICES = 8
 dc_code_sent = false
 dc_code_resent = false
 dc_param_update_time = 0.25 -- sends message to crow to update parameters if they have changed, only send message if there's a change
@@ -147,6 +146,7 @@ function build_dc_param_IDs()
         for j = 1, #dc_names do
             dc_param_IDs[i][dc_names[j]] = "drumcrow_"..dc_names[j].."_"..i
         end
+        dc_param_IDs[i]["crow_ii_address"] = "dc_crow_ii_address_"..i
         dc_param_IDs[i]["group"] = "dc_group_"..i
         dc_param_IDs[i]["trig_behavior"] = "dc_trig_behavior_"..i
         dc_param_IDs[i]["param_behavior"] = "dc_param_behavior_"..i
@@ -183,17 +183,25 @@ end
 
 -- create drumcrow parameter menu for nb to show/hide
 local function add_drumcrow_params(i)
-    params:add_group(dc_param_IDs[i]["group"], "drumcrow voice "..i, 5 + 16 + 13 + 13 + 13) -- keep track number of params for the group
+    params:add_group(dc_param_IDs[i]["group"], "drumcrow voice "..i, 6 + 16 + 13 + 13 + 13) -- keep track number of params for the group
     params:hide(dc_param_IDs[i]["group"])
 
-    -- 5 settings params
+    -- 6 settings params
     params:add_trigger(dc_param_IDs[i]["send_code"], "resend code to crow")
     params:set_action( dc_param_IDs[i]["send_code"], function() dc_resend_code() end)
+    params:add_option( dc_param_IDs[i]["crow_ii_address"], "resend: crow ii address", {1, 2}, 1)
+    params:set_action( dc_param_IDs[i]["crow_ii_address"], function(x)
+        for j = 1, DC_VOICES do
+            if i ~= j then
+                params:set(dc_param_IDs[j]["crow_ii_address"], x) -- set all voices to this value
+            end
+        end
+    end)
     params:add_option( dc_param_IDs[i]["param_behavior"], "param behavior", dc_param_behavior, 1)
     params:set_action( dc_param_IDs[i]["param_behavior"], function(x) 
         for j = 1, DC_VOICES do
             if i ~= j then
-                params:set(dc_param_IDs[j]["param_behavior"], x) -- set all 4 params to this value
+                params:set(dc_param_IDs[j]["param_behavior"], x) -- set all voices to this value
             end
         end
     end)
@@ -201,7 +209,7 @@ local function add_drumcrow_params(i)
     params:set_action( dc_param_IDs[i]["trig_behavior"], function(x) 
         for j = 1, DC_VOICES do
             if i ~= j then
-                params:set(dc_param_IDs[j]["trig_behavior"], x) -- set all 4 params to this value
+                params:set(dc_param_IDs[j]["trig_behavior"], x) -- set all voices to this value
             end
         end
     end)
@@ -246,7 +254,7 @@ local function add_drumcrow_params(i)
         if params:get(dc_param_IDs[i]["param_behavior"]) == 2 then
             for j = 1, DC_VOICES do
                 if i ~= j then
-                    params:set(dc_param_IDs[j]["flock"], x) -- set all 4 params to this value
+                    params:set(dc_param_IDs[j]["flock"], x) -- set all voices to this value
                 end
             end
         end
@@ -383,7 +391,6 @@ function dc_crow_code_send()
 
     -- make the event to catch upload completion before we continue
     norns.crow.public.discovered = function() 
-        print("CAW: code uploaded! READY!") 
         dc_code_sent = true
 
         -- get current values of norns param menu and send to crow
@@ -408,6 +415,8 @@ function dc_crow_code_send()
             end
             dc_code_resent = false
         end
+        crow.set_crow_address(params:get(dc_param_IDs[1]["crow_ii_address"]))
+        print("CAW: code uploaded! READY!")
     end
 
     -- now let's send crow the code, first find the file to send
@@ -612,18 +621,78 @@ mod.hook.register("script_post_init", "drumcrow post init", dc_post_init) -- add
 -- so maybe 261.625 Hz / 255.5 Hz = 1.02399 multiplier to frequency for a patch? I have no idea why this happens
 -- 2 - 1.02399 = 0.9760078, but that's still +1 cents so 0.97655 I guess and checked
 -- cyc = cyc * 0.97655
+-- x = x > 24 and x - ((x-24)*4) or x < -24 and x - ((x+24)*4) or x
+--     this is the math for mutate, but simplified the maths to hopefully speed up things a bit
 
 -- design constraints
 -- uses metro 8 on crow
 -- FREQ_LIMIT = {114, 114, 101, 101, 114, 114, 114, 114, 114} based on the shape used
 -- exponential and logarithmic shapes cost more CPU and thus require a lower max frequency limit
+-- logarithmic and exponential shapes cost more CPU and thus can't be used with mutate functionality without lower dc_update_time
+-- mutate functionality very CPU intensive because it requires looping through the DNA sequence each update loop
 -- tested all 4 oscillators set to exponential and turned up transpose until errors started spamming matron, ended up at 101
 -- 114 = 5919 Hz, 101 = 2793 Hz
 -- code is sent post norns script init() and will reset all crow initialization or reset all code previously sent to crow 
 -- resending code will reset crow and thus reset the behaviors of crow inputs 1 and 2 (example: dreamsequence uses in 2)
 -- automatically turn off update flag if dcAmp is not there
--- magical splash function (I just messed around with math.random until it sounded cool, if splash <= 0 it just skips this)
+-- magical splash function, complete improvisation, could be optimized
 -- amp, lfo, note curve parameter is limited from 2^-5 to 2^5
+
+-- DC_SPECIES_DNA = {
+--     {}, -- chromatic, off
+--     {0, 2, 4, 5, 7, 9, 11}, -- major, cornix
+--     {0, 2, 3, 5, 7, 9, 10}, -- minor, orru
+--     {0, 3, 5, 7, 10}, -- pentatonic, kubaryi
+--     {0, 0, -5, -7, -10, -7, -5, 0, 5, 7, 12, 17, 19, 24, 19, 17, 15, 12}, -- brachyrhynchos
+--     {0, 0, 2, 7, 14, 21, 24, 14, 21, 18, 12}, -- culminatus
+--     {0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 14, 12, 11, 9, 7, 5, 4, 2, 0}, -- bennetti
+--     {0, 7, 0, 12, 0, 19}, -- levaillantii
+--     {0, 0, 0, 0, -7, 0, 7, 14, 21, 24, 12, 12, 12, 12}, -- torquatus
+--     {0, 11, 9, 7, 5, 4, 2, 0}, -- corone
+--     {0, -3, -5, -7, -10, 11, 7, 5, 2, 0}, -- capensis
+--     {0, 23, 2, 21, 4, 21, 5, 19, 7, 17, 11, 16, 12, 14, 12}, -- edithae
+--     {0, 0, 2, 4, 5, 7, 9, 11, 14, -14, -10, -8, -7, -5, -3, -3, -1, 0}, -- enca
+--     {0, 12, 24, -24, 0, 0, 0, -24, 24, 19, 12}, -- florensis
+--     {0, 2, 14, 2, 0, 5, 7, 12, 10, -2, 10, 12} -- fuscicapillus
+-- } -- 14 species discovered
+
+-- if bitz > 0 then
+--     if s.species >= 2 then
+--         if s.shape ~= 3 and s.shape ~= 4 then
+--             mut_scale[i] = {}
+--             for idx = 1, DC_SPECIES_LEN[s.species] do
+--                 neutral = (idx - 1) * (12 / (DC_SPECIES_LEN[s.species] - 1))
+--                 x = neutral + (DC_SPECIES_DNA[s.species][idx] - neutral) * mut_amt
+--                 x = x > 24 and -3 * x + 96 or x < -24 and -3 * x - 96 or x
+--                 mut_scale[i][idx] = s.n_to_dcAmp == 1 and x or math.floor(x)
+--             end
+--             output[i].scale(mut_scale[i], 12, bitz)
+--         else -- log and exp shapes are expensive when mutating, do this instead
+--             if mut_amt < 0 then mut_amt = mut_amt * -1 end
+--             output[i].scale(DC_SPECIES_DNA[s.species], 12 * mut_amt, bitz)
+--         end
+--     else
+--         output[i].scale(DC_SPECIES_DNA[s.species], 12, bitz)
+--     end
+-- else
+--     output[i].scale('none')
+-- end
+
+-- {0, -7, -12, -7, -5, 0, 5, 7, 12, 19, 24, 19, 12}, -- brachyrhynchos
+-- {0, 0, 0, 0, -7, 0, 7, 14, 21, 24, 12, 12, 12}, -- torquatus
+-- {0, -2, -5, -7, -9, -12, -14, -17, 24, 22, 19, 17, 12}, -- capensis
+-- {0, 23, 2, 21, 4, 21, 5, 19, 7, 17, 11, 16, 12}, -- edithae
+-- {0, 2, 4,  5, 7, 9, 11, 14, -14, -10, -8, -7, 12}, -- enca
+-- {0, 12, 24, -24, -2, 0, 0, 0, 0, -2, -24, 24, 12}, -- florensis
+-- {0, 2, 14, 2, 0, -2, -14, -2, 0, 7, 14, 24, 12} -- fuscicapillus
+
+-- , 'brachyrhynchos', 'torquatus', 
+--     'capensis', 'edithae', 'enca', 'florensis', 'fuscicapillus'
+
+-- else -- log and exp shapes are expensive when mutating, do this instead
+--     if mut_amt < 0 then mut_amt = mut_amt * -1 end
+--     output[i].scale(DC_SPECIES_DNA[s.species], 12 * mut_amt, bitz)
+-- end
 
 -- GRAVEYARD
 
