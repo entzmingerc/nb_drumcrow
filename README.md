@@ -267,24 +267,8 @@ TODO make this nicer
 
 Similar to teletype operation, you can call the `ii.self.call4(a, b, c, d)` function directly on crow to access the same functions described in the teletype operation section. You'll have to use Z * 100 when setting a parameter value. There is no built-in sequencer currently, so I'm not sure what you're planning on doing with druid.  
 
-
-## Description
-A brief description of your synthesizer, its main features, and what makes it unique.
-
-## Installation
-Instructions on how to install or set up your synthesizer.
-
 ## Usage
-Basic instructions on how to use the synthesizer.
+Basic instructions on how to use.
 
 ## Examples
-Provide some example settings or presets that showcase your synthesizer's capabilities.
-
-## Contributing
-Instructions for how others can contribute to your project, if applicable.
-
-## License
-Information about the license for your synthesizer.
-
-## Contact
-Your contact information or links to where users can reach you for support or feedback.
+Provide some example settings or presets.
