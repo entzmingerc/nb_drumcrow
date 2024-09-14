@@ -3,10 +3,14 @@ This is a mod for monome norns that turns a monome crow into a synthesizer using
 
 ### Features:
 - 4 monophonic synthesizers, one for each output of crow.  
+- Can trigger each individually, round robin (4 voice polysynth), or all simultaneously (monophonic 4 voice synth).  
+- Can use 2 crows connected via i2c to create an 8 voice version.  
+- Each output can trigger 1 or more additional voices for paired operation (v/oct & gate).  
 - Can be sequenced with any norns script that supports nb, teletype, or druid.  
-- Each output can be set to synthesize audio, gate/trigger, envelope, a V/Oct CV signal, or a CV signal quantized to a scale.  
-- Each output can be triggered individually, round robin, or all simultaneously. Each output can be set to trigger only itself or an additional output for paired operation.  
-- Each output has 3 cycling envelope modulation sources.
+- Each output can be set to synthesize audio, gate/trigger, envelope, V/Oct CV signal quantized to a scale, or convert the midi note from nb to a V/Oct CV value.  
+- Each output has 3 cycling envelope modulation sources which map to 7 destinations.  
+- Crow output voltage quantizer used as wide ranging bitcrusher distortion.  
+- Saturation, PWM, global detune, vibrato, FM, and other fun experimental crow synthesis.  
 
 # Requirements: 
 - monome crow
@@ -30,6 +34,8 @@ TODO Basic instructions on how to use the synthesizer
 `nb_drumcrow` is an nb voice that turns each output of a monome crow into a monophonic synthesizer.  
 Each output of crow can be triggered individually, in a round robin way as a 4 voice polyphonic synth, or all at once.  
 Any output could be set as a CV Trigger, CV Envelope, or CV LFO with optional quantization for pitch sequences.
+
+TODO how do set up 
 
 # Parameters
 channel, output, player, voice
@@ -81,11 +87,13 @@ Default parameter values are the values loaded using the init preset.
 | amp loop | if on: envelope begins again after fall is complete | off, on | amp & note: off, lfo on |
 | amp reset | if on: envelope resets from the start of rise during note on | off, on | amp & note: on, lfo off |
 
-Each drumcrow output has 3 envelopes. The 3 envelopes, `amp`, `lfo`, and `note` are functionally identical, but have different values when loading the init preset. `amp` modulates amplitude by 1.0, loop is off, and reset is on. `lfo` loop is on and reset is off. `note` loop is off and reset is on.  
+The 3 envelopes, `amp`, `lfo`, and `note` are functionally identical, but have different values when loading the init preset. `amp` modulates amplitude by 1.0, loop is off, and reset is on. `lfo` loop is on and reset is off. `note` loop is off and reset is on.  
 
 Each envelope has the same set of modulation targets, modulation depth ranges, and envelope parameters. The modulation depth adds to the current value of the parameter it is modulating (except for amplitude). For example: pulse width at 0.4, lfo -> pulse width modulation depth at 0.2, then you'll hear pulse width modulate back and forth between 0.4 and 0.6. For modulation depth -0.8, you'd hear 0.4 to -0.4. For amplitude, if amplitude modulation depth is 0 for all envelopes then you'll hear silence.  
 
 The `cycle freq` value isn't literally the frequency. Low values are longer cycle times, high values are shorter cycle times.  
+
+TODO global detune, birdsong, flock size, midi note -> amp, etc all the others
 
 TODO curve plots
 
@@ -122,7 +130,9 @@ An amplitude modulation depth of 1 for maximum velocity results in an oscillator
 
 Mutate is used with bitcrush and corvus. Mutate will multiply all values of the corvus species scale up to a value of +/- 24. At mutate = 1, the values of the corvus scale are unchanged. At mutate = 0, the scale values are evenly distributed across the v/oct range. If mutate multiplies a scale value to above 24, it will start to decrease negatively below 24 by 4 times the rate. Similarly values below -24 will increase positively at 4 times the rate. This creates a lot of variation in the distortion tone when using high mutate values or when modulating mutate. Modulating between -1 and +1 there will be a small change in tone but not much change in distortion. Modulating to values above 1 or below -1 will give dramatically more distortion and interesting tones. Try using LFO to slowly modulate mutate to hear "wavetable" type tones.  
 
-TODO rewrite this with diagrams and examples
+Synth shapes `logarithmic` and `exponential` shapes have unique mutate behavior. This will multiply the absolute value of mutate and the temperament (12) of the quantizer. So when mutate approaches zero, there's an interesting spike in distortion as the temperament of the quantizer approaches 0. Try modulating mutate through 0 to hear the bitcrush amount swell in and out with distortion.  
+
+TODO rewrite this with diagrams and examples 
 
 ## Synth Shapes
 
