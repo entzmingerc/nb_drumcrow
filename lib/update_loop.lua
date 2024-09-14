@@ -1,36 +1,25 @@
-local states = {}
+local st = {}
 local DC_VOICES = 4
-local DC_FREQ_LIMIT = {114, 114, 101, 101, 114, 114, 114, 114, 114}
-local DC_A_LIMIT = {0, 1, 5, 10, 20, 40}
-local dc_birdsong_idx = {1,1,1,1}
-local min_ = math.min
-local max_ = math.max
-local rand_ = math.random
-local floor_ = math.floor
-local abs_ = math.abs
+local FREQ_LIMIT = {5919, 5919, 2793, 2793, 5919, 5919, 5919, 5919, 5919}
+local A_MAX = {0, 1, 5, 10, 20, 40}
+local bird_idx = {1,1,1,1}
+local min_, max_, rnd_, flr_, abs_ = math.min, math.max, math.random, math.floor, math.abs
 local scale_ = {output[1].scale, output[2].scale, output[3].scale, output[4].scale}
 local dc_update_enable = {true, true, true, true}
-local DC_SPECIES_DNA = {
-    {}, -- chromatic, off
-    {0, 2, 4, 5, 7, 9, 11}, -- major, cornix
-    {0, 2, 3, 5, 7, 9, 10}, -- minor, orru
-    {0, 3, 5, 7, 10, 12, 15}, -- pentatonic, kubaryi
-    {0, 7, 0, 12, 0, 19, 12}, -- levaillantii
-    {0, 7, 14, 21,-12, 0, 12}, -- culminatus
-    {0, 7, 10, 12, 12, 12, 12}, -- bennetti
-    {0, 11, 9, 7, 5, 4, 2}, -- corone
-    {0, 23, 2, 21, 4, 21, 5, 19, 7, 17, 11, 15, 12}, -- edithae
-    {0, 2, 4, 5, 7, 9, 11, 14, -14, -10, -7, -5, 0}, -- enca
-    {0, 12, 24, -24, -2, 0, 0, 0, -2, -24, 24, 19, 12}, -- florensis
-    {0, 2, 14, 2, 0, 5, 7, 12, 17, 10, -2, 10, 12}, -- fuscicapillus
-    {0, 0, 0, 0, -7, 0, 7, 14, 21, 24, 12, 12, 12}, -- torquatus
-    {0, -5, -7, -10, -7, 0, 7, 12, 17, 24, 17, 15, 12} -- brachyrhynchos
-} -- 7/13 length, 13 species
-local NEUTRAL = {{0, 2, 4, 6, 8, 10, 12}, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}}
+local DNA = {}
+DNA[1] = {} -- chromatic, off
+DNA[2] = {0, 2, 4, 5, 7, 9, 11} -- major, cornix
+DNA[3] = {0, 2, 3, 5, 7, 9, 10} -- minor, orru
+DNA[4] = {0, 3, 5, 7, 10, 12, 15} -- pentatonic, kubaryi
+DNA[5] = {0, 11, 9, 7, 5, 4, 2} -- rev major, corone
+DNA[6] = {0, 7, 12, 5, 0, 5, 12} -- levaillantii
+DNA[7] = {0, 7, 12, 24, -12, 0, 12} -- culminatus
+DNA[8] = {0, 24, 5, 22, 7, 19, 12} -- edithae
+DNA[9] = {0, 17, -17, 0, -17, 17, 12} -- florensis
+DNA[10] = {0, -7, -10, 12, 24, 17, 12} -- brachyrhynchos
+local NEUTRAL = {0, 2, 4, 6, 8, 10, 12}
 local mut_scale = {}
-for x = 1, 4 do 
-    mut_scale[x] = {{0, 2, 4, 6, 8, 10, 12}, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}}
-end
+for x = 1, 4 do mut_scale[x] = {0, 2, 4, 6, 8, 10, 12} end
 local dc_update_time = 0.01 --0.008 speed limit
 local dc_update_metro = false
 local dc_update_init_check = false
@@ -38,15 +27,15 @@ local shapes = {'linear','sine','logarithmic','exponential','now','wait','over',
 local dc_names = 
 {
     'mfreq', 'note', 'dcAmp', 'pw', 'pw2', 'bit', 'splash',
-    'a_mfreq', 'a_note', 'a_amp', 'a_pw', 'a_pw2', 'a_bit', 'a_cyc', 'a_sym', 'a_curve', 'a_loop', 'a_phase', 
-    'l_mfreq', 'l_note', 'l_amp', 'l_pw', 'l_pw2', 'l_bit', 'l_cyc', 'l_sym', 'l_curve', 'l_loop', 'l_phase', 
-    'n_mfreq', 'n_note', 'n_amp', 'n_pw', 'n_pw2', 'n_bit', 'n_cyc', 'n_sym', 'n_curve', 'n_loop', 'n_phase', 
+    'a_mfreq', 'a_note', 'a_amp', 'a_pw', 'a_pw2', 'a_bit', 'a_cyc', 'a_sym', 'a_curve', 'a_loop', 'a_phase',
+    'l_mfreq', 'l_note', 'l_amp', 'l_pw', 'l_pw2', 'l_bit', 'l_cyc', 'l_sym', 'l_curve', 'l_loop', 'l_phase',
+    'n_mfreq', 'n_note', 'n_amp', 'n_pw', 'n_pw2', 'n_bit', 'n_cyc', 'n_sym', 'n_curve', 'n_loop', 'n_phase',
     'transpose', 'model', 'shape',
     'a_reset', 'l_reset', 'n_reset', 'species', 'n_to_dcAmp', 'a_limit', 'birdsong', 'flock',
-    'mut', 'a_mut', 'l_mut', 'n_mut'
+    'mut', 'a_mut', 'l_mut', 'n_mut', 'detune'
 }
 for ch = 1, DC_VOICES do
-    states[ch] = 
+    st[ch] = 
     {
         mfreq = 1, note = 60, dcAmp = 0, pw = 0, pw2 = 0, bit = 0, splash = 0,
         a_mfreq = 0, a_note = 0, a_amp = 1, a_pw = 0, a_pw2 = 0, a_bit = 0, a_cyc = 3, a_sym = -1, a_curve = 2, a_loop = 1, a_phase = 1, 
@@ -54,36 +43,29 @@ for ch = 1, DC_VOICES do
         n_mfreq = 0, n_note = 0, n_amp = 0, n_pw = 0, n_pw2 = 0, n_bit = 0, n_cyc = 10, n_sym = -1, n_curve = 4, n_loop = 1, n_phase = 1, 
         transpose = 0, model = 1, shape = 2,
         a_reset = 2, l_reset = 1, n_reset = 2, species = 1, n_to_dcAmp = 1, a_limit = 4, birdsong = 1, flock = 1,
-        mut = 1, a_mut = 0, l_mut = 0, n_mut = 0
+        mut = 1, a_mut = 0, l_mut = 0, n_mut = 0, detune = 1
     }
-end
-
--- i2c only sends 16 signed int, 32768 upper limit, multiply by 100 to send 0.01 as 1
-function send_state_value_i2c(crowidx, ch, k, v)
-    ii.crow[crowidx].call4(2, ch, k, v * 100)
 end
 
 function dc_synth_update_receive(new_values)
     for ch, vals in pairs(new_values) do
         if vals[1] ~= nil and vals[2] ~= nil then
             if ch >= 5 then
-                crowidx, new_ch = dc_get_crow_and_channel(ch)
-                ii.crow[crowidx].call4(3, new_ch, vals[1], vals[2])
+                ii.crow[1].call4(3, ch - 4, vals[1], vals[2])
             else
                 dc_set_synth(ch, vals[1], vals[2])
             end
         end
     end
 end
-
+-- i2c only sends 16 signed int, 32768 upper limit, multiply by 100 to send 0.01 as 1
 function dc_param_update_receive(new_values)
     for ch, vals in pairs(new_values) do
         for k, v in pairs(vals) do
             if ch >= 5 then
-                crowidx, new_ch = dc_get_crow_and_channel(ch)
-                send_state_value_i2c(crowidx, new_ch, k, v)
+                ii.crow[1].call4(2, ch - 4, k, v * 100)
             else
-                states[ch][dc_names[k]] = v
+                st[ch][dc_names[k]] = v
             end
         end
     end
@@ -129,8 +111,7 @@ end
 
 function dc_set_synth(ch, model, shape)
     if ch >= 5 then
-        crowidx, new_ch = dc_get_crow_and_channel(ch)
-        ii.crow[crowidx].call4(3, new_ch, model, shape)
+        ii.crow[1].call4(3, ch - 4, model, shape)
         return
     end
     local restart_update = false
@@ -149,8 +130,8 @@ function dc_set_synth(ch, model, shape)
     elseif model == 7 then output[ch](ASL_bytebeat5(shapes[shape])) 
     else output[ch](ASL_var_saw(shapes[shape]))
     end
-    states[ch].model = model
-    states[ch].shape = shape
+    st[ch].model = model
+    st[ch].shape = shape
     dc_update_enable[ch] = true
     if restart_update then
         dc_update_start()
@@ -159,11 +140,7 @@ end
 
 local function dc_check_ASL(ch)
     msg = output[ch].asl.dyn._names
-    if msg.dcAmp ~= nil then
-        return true
-    else 
-        return false
-    end
+    if msg.dcAmp ~= nil then return true else return false end
 end
 
 local function dc_update_acc(phase, freq, sec, looping)
@@ -179,47 +156,45 @@ local function dc_update_peak(ph, pw, curve)
 end
 
 local function dc_update_loop_maths(i)
-    local s = states[i]
-    s.a_phase   = dc_update_acc( s.a_phase, s.a_cyc, dc_update_time, s.a_loop == 2)
+    local s = st[i]
+    s.a_phase = dc_update_acc(s.a_phase, s.a_cyc, dc_update_time, s.a_loop == 2)
     local a_env = dc_update_peak(s.a_phase, s.a_sym, s.a_curve)
-    s.l_phase   = dc_update_acc( s.l_phase, s.l_cyc, dc_update_time, s.l_loop == 2)
+    s.l_phase = dc_update_acc(s.l_phase, s.l_cyc, dc_update_time, s.l_loop == 2)
     local l_env = dc_update_peak(s.l_phase, s.l_sym, s.l_curve)
-    s.n_phase   = dc_update_acc( s.n_phase, s.n_cyc, dc_update_time, s.n_loop == 2)
+    s.n_phase = dc_update_acc(s.n_phase, s.n_cyc, dc_update_time, s.n_loop == 2)
     local n_env = dc_update_peak(s.n_phase, s.n_sym, s.n_curve)
-    local max_freq = s.mfreq   + (n_env * s.n_mfreq) + (l_env * s.l_mfreq) + (a_env * s.a_mfreq)
-    local note_up  = s.note/12 + (n_env * s.n_note)  + (l_env * s.l_note)  + (a_env * s.a_note)
-    local volume   = (n_env * s.n_amp * s.dcAmp) + (l_env * s.l_amp * s.dcAmp) + (a_env * s.a_amp * s.dcAmp) 
-    local pw       = s.pw  + (n_env * s.n_pw)  + (l_env * s.l_pw)  + (a_env * s.a_pw)
-    local pw2      = s.pw2 + (n_env * s.n_pw2) + (l_env * s.l_pw2) + (a_env * s.a_pw2)
-    local bitz     = s.bit + (n_env * s.n_bit) + (l_env * s.l_bit) + (a_env * s.a_bit)
-    local splish   = s.splash * 0.5
-    local mut_amt  = s.mut + (n_env * s.n_mut) + (l_env * s.l_mut) + (a_env * s.a_mut)
-    max_freq  = min_(max_(max_freq, 0.01), 1)
-    local cyc = min_(max_(note_up * 12, 0.01) + s.transpose, DC_FREQ_LIMIT[s.shape] * max_freq)
-    cyc = 1/(13.75 * (2 ^ ((cyc - 9) / 12))) -- midi num to freq
-    cyc = cyc * 0.97655 -- for correct tuning
-    output[i].dyn.cyc = splish > 0 and (rand_()*0.1 < cyc/0.1 and cyc + (cyc * 0.2 * rand_()*splish) or cyc + rand_()*0.002*splish) or cyc
+    local max_freq = s.mfreq + (n_env * s.n_mfreq) + (l_env * s.l_mfreq) + (a_env * s.a_mfreq)
+    local note_up = s.note/12 + (n_env * s.n_note) + (l_env * s.l_note)  + (a_env * s.a_note)
+    local volume = (n_env * s.n_amp * s.dcAmp) + (l_env * s.l_amp * s.dcAmp) + (a_env * s.a_amp * s.dcAmp) 
+    local pw = s.pw + (n_env * s.n_pw) + (l_env * s.l_pw) + (a_env * s.a_pw)
+    local pw2 = s.pw2 + (n_env * s.n_pw2) + (l_env * s.l_pw2) + (a_env * s.a_pw2)
+    local bitz = s.bit + (n_env * s.n_bit) + (l_env * s.l_bit) + (a_env * s.a_bit)
+    local splish = s.splash * 0.5
+    local mut_amt = s.mut + (n_env * s.n_mut) + (l_env * s.l_mut) + (a_env * s.a_mut)
+    max_freq = min_(max_(max_freq, 0.01), 1)
+    local cyc = note_up * 12 + s.transpose
+    cyc = 13.75 * (2 ^ ((cyc - 9) / 12)) -- midi num to freq to sec
+    cyc = 1/(min_(max_(cyc * 0.97655 * s.detune, 0.1), FREQ_LIMIT[s.shape] * max_freq)) -- for correct (de)tuning
+    output[i].dyn.cyc = splish > 0 and (rnd_()*0.1 < cyc/0.1 and cyc + (cyc * 0.2 * rnd_()*splish) or cyc + rnd_()*0.002*splish) or cyc
     if bitz > 0 then
         if s.species >= 2 and s.shape ~= 3 and s.shape ~= 4 then
-            local a_ = s.species <= 8 and 7 or 13
-            local b_ = s.species <= 8 and 1 or 2
             local x = 0
-            for idx = 1, a_ do
-                x = NEUTRAL[b_][idx] + (DC_SPECIES_DNA[s.species][idx] - NEUTRAL[b_][idx]) * mut_amt
+            for idx = 1, 7 do
+                x = NEUTRAL[idx] + (DNA[s.species][idx] - NEUTRAL[idx]) * mut_amt
                 x = x > 24 and -3 * x + 96 or x < -24 and -3 * x - 96 or x
-                mut_scale[i][b_][idx] = s.n_to_dcAmp == 1 and x or floor_(x)
+                mut_scale[i][idx] = s.n_to_dcAmp == 1 and x or flr_(x)
             end
-            scale_[i](mut_scale[i][b_], 12, bitz)
+            scale_[i](mut_scale[i], 12, bitz)
         elseif s.species >= 2 then -- log and exp shapes
-            scale_[i](DC_SPECIES_DNA[s.species], 12 * abs_(mut_amt), bitz)
+            scale_[i](DNA[s.species], 12 * abs_(mut_amt), bitz)
         else
-            scale_[i](DC_SPECIES_DNA[s.species], 12, bitz)
+            scale_[i](DNA[s.species], 12, bitz)
         end
     else
         scale_[i]('none')
     end
     volume = s.n_to_dcAmp == 2 and note_up + s.transpose / 12 + volume or volume
-    output[i].dyn.dcAmp = min_(max_(volume, -1 * DC_A_LIMIT[s.a_limit]), DC_A_LIMIT[s.a_limit])
+    output[i].dyn.dcAmp = min_(max_(volume, -1 * A_MAX[s.a_limit]), A_MAX[s.a_limit])
     pw = (min_(max_(pw, -1), 1) + 1) / 2
     if s.model == 2 or s.model == 5 or s.model == 6 then
         output[i].dyn.pw = pw * pw2
@@ -261,59 +236,33 @@ end
 
 function dc_note_on(ch, nt, vel)
     if ch >= 5 then
-        crowidx, new_ch = dc_get_crow_and_channel(ch)
-        ii.crow[crowidx].call4(1, new_ch, nt, vel)
+        ii.crow[1].call4(1, ch - 4, nt, vel * 100)
         return
     end
     if dc_update_init_check == false then
         dc_update_init()
     end
     if dc_check_ASL(ch) == false then
-        dc_set_synth(ch, states[ch].model, states[ch].shape)
+        dc_set_synth(ch, st[ch].model, st[ch].shape)
     end
-    if states[ch].a_reset == 2 and states[ch].a_phase >= states[ch].a_sym then
-        states[ch].a_phase = -1
-    end
-    if states[ch].l_reset == 2 and states[ch].l_phase >= states[ch].l_sym then
-        states[ch].l_phase = -1
-    end
-    if states[ch].n_reset == 2 and states[ch].n_phase >= states[ch].n_sym then
-        states[ch].n_phase = -1
-    end
-    if states[ch].birdsong == 1 then
-        states[ch].note = nt
+    if st[ch].a_reset == 2 and st[ch].a_phase >= st[ch].a_sym then st[ch].a_phase = -1 end
+    if st[ch].l_reset == 2 and st[ch].l_phase >= st[ch].l_sym then st[ch].l_phase = -1 end
+    if st[ch].n_reset == 2 and st[ch].n_phase >= st[ch].n_sym then st[ch].n_phase = -1 end
+    if st[ch].birdsong == 1 then
+        st[ch].note = nt
     else
-        states[ch].note = nt + DC_SPECIES_DNA[states[ch].birdsong][(dc_birdsong_idx[ch] - 1) % #DC_SPECIES_DNA[states[ch].birdsong] + 1]
-        dc_birdsong_idx[ch] = dc_birdsong_idx[ch] % #DC_SPECIES_DNA[states[ch].birdsong] + 1
+        st[ch].note = nt + DNA[st[ch].birdsong][(bird_idx[ch] - 1) % #DNA[st[ch].birdsong] + 1]
+        bird_idx[ch] = bird_idx[ch] % #DNA[st[ch].birdsong] + 1
     end
-    states[ch].dcAmp = vel * 5
+    st[ch].dcAmp = vel * 5
     dc_update_start()
-end
-
-function dc_get_crow_and_channel(ch)
-    if ch > 0 and ch <= 4 then
-        return 1, ch
-    elseif ch > 4 and ch <= 8 then
-        return 2, ch - 4
-    elseif ch > 8 and ch <= 12 then
-        return 3, ch - 8
-    elseif ch > 12 and ch <= 16 then
-        return 4, ch - 12
-    else
-        return 1, 1
-    end
 end
 
 function set_crow_address(x) ii.address = x end
 
-ii.self.call4 = function(func, arg1, arg2, arg3)
-    if func == 1 then -- (ch, nt, vel)
-        dc_note_on(arg1, arg2, arg3)
-    elseif func == 2 then -- (ch, k, v)
-        states[arg1][dc_names[arg2]] = arg3 / 100
-    elseif func == 3 then -- (ch, model, shape)
-        dc_set_synth(arg1, arg2, arg3)
-    else
-        print("CAW: call4")
-    end
+ii.self.call4 = function(func, a, b, c)
+    if func == 1 then dc_note_on(a, b, c / 100) -- (ch, nt, vel)
+    elseif func == 2 then st[a][dc_names[b]] = c / 100 -- (ch, k, v)
+    elseif func == 3 then dc_set_synth(a, b, c) -- (ch, model, shape)
+    else print("CAW: call4") end
 end

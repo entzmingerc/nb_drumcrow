@@ -43,6 +43,7 @@ Default parameter values are the values loaded using the init preset.
 | resend code to crow | (GLOBAL) reuploads audio engine code to run on crow | BUTTON | not pressed |
 | param behavior | (GLOBAL) set this player or all players when changing a value | individual, all | individual |
 | trigger behavior | (GLOBAL) controls how all drumcrow nb players deal with note on | individual, round robin, all | individual |
+| global detune | (GLOBAL) multiplier to all channel frequencies, channel 1 frequency | -0.5, 1.0 | 0 |
 | synth preset | selects which preset to load | see synth presets | init |
 | load preset | loads the synth preset | BUTTON | not pressed |
 
@@ -51,15 +52,16 @@ Default parameter values are the values loaded using the init preset.
 |-----------|-------------|-------|---------|
 | synth shape | affects tone, sets voltage path between to() calls in ASL model | 1-9 | sine |
 | synth model | different ASL models that are oscillating | 1-7 | var_saw |
-| birdsong | The transposition sequence, stepped each note on | see species | off (corvix) |
+| birdsong | The transposition sequence, stepped each note on | see species | off |
 | flock size | number of voices triggered during note on | 1-4 | 1 |
 | midi note -> amp | Converts midi note to amplitude for outputting v/oct | off, on | off |
 | max freq | limits the maximum oscillator frequency | 0.01, 1 | 1 |
 | transpose | offsets the midi note | -120, 120 | 120 |
 | pulse width | functionality changes with ASL model | -1, 1 | 0 |
 | pulse width 2 | functionality changes with ASL model | -10, 10 | 0 |
-| ^^bitcrush | crow output scaling amount, volts per octave | -10, 60 | 0 |
-| ^^corvus | scale to quantize output voltage to | see species | chromatic (corvix) |
+| ^^bitcrush (v/oct) | crow output scaling amount, volts per octave | -10, 60 | 0 |
+| ^^mutate | multiplier of each value in corvus scale | -5, 5 | 1 |
+| ^^corvus | scale to quantize output voltage to | see species | off (chromatic) |
 | ^^amp limit pre-bit | limits amplitude before bitcrusher | ±0, ±1, ±5, ±10, ±20, ±40 | ±10 |
 | splash | amount of randomness applied to the frequency | 0, 3 | 0 |
 
@@ -67,18 +69,19 @@ Default parameter values are the values loaded using the init preset.
 | Parameter | Description | Range | Default |
 |-----------|-------------|-------|---------|
 | amp -> max freq | modulation depth of maximum frequency | -1, 1 | 0 |
-| amp -> osc note | modulation depth of oscillator frequency | -10, 10 | 0 |
+| amp -> osc note | modulation depth of oscillator frequency | -5, 5 | 0 |
 | amp -> amplitude | modulation depth of amplitude | -5, 5 | 1 for amp only |
 | amp -> pulse width | modulation depth of pulse width | -2, 2 | 0 |
 | amp -> pulse width 2 | modulation depth of pulse width 2 | -10, 10 | 0 |
 | amp -> bitcrush | modulation depth of bitcrush | -10, 60 | 0 |
+| amp -> mutate | modulation depth of bitcrush | -10, 10 | 0 |
 | amp cycle freq | how quickly the envelope rises and falls | 0.1, 200 | various |
-| amp symmetry | ratio between rise time and fall time, 0 is 50/50 | -2, 2 | amp & note: -1, lfo 0 |
-| amp curve | shape of the rise and fall stages | 0.03125, 32 | amp & note: 4, lfo 1 |
+| amp symmetry | ratio rise time to fall time | -1, 1 | amp & note: -1, lfo 0 |
+| amp curve | shape of rise & fall, -5 square, 0 linear, 5 exponential | -5, 5 | amp 1, lfo 0, note 4 |
 | amp loop | if on: envelope begins again after fall is complete | off, on | amp & note: off, lfo on |
 | amp reset | if on: envelope resets from the start of rise during note on | off, on | amp & note: on, lfo off |
 
-Each drumcrow output has 3 envelopes. The 3 envelopes, `amp`, `lfo`, and `note` are functionally identical, but have different values when loading the init preset. init `amp` modulates amplitude by 1.0, loop is off, and reset is on. init `lfo` loop is on and reset is off. init `note` loop is off and reset is on.  
+Each drumcrow output has 3 envelopes. The 3 envelopes, `amp`, `lfo`, and `note` are functionally identical, but have different values when loading the init preset. `amp` modulates amplitude by 1.0, loop is off, and reset is on. `lfo` loop is on and reset is off. `note` loop is off and reset is on.  
 
 Each envelope has the same set of modulation targets, modulation depth ranges, and envelope parameters. The modulation depth adds to the current value of the parameter it is modulating (except for amplitude). For example: pulse width at 0.4, lfo -> pulse width modulation depth at 0.2, then you'll hear pulse width modulate back and forth between 0.4 and 0.6. For modulation depth -0.8, you'd hear 0.4 to -0.4. For amplitude, if amplitude modulation depth is 0 for all envelopes then you'll hear silence.  
 
@@ -94,33 +97,32 @@ TODO reset plots
 
 ## Bitcrusher
 
-15 species of drumcorvus have been discovered so far.  
+9 species of drumcorvus have been discovered so far.  
 
 | Species | Scale |
 |-----------|-------------|
-| cornix | (chromatic) |
-| albus | 0, 2, 4, 5, 7, 9, 11 (major) |
+| off | (chromatic) |
+| cornix | 0, 2, 4, 5, 7, 9, 11 (major) |
 | orru | 0, 2, 3, 5, 7, 9, 10 (minor) |
-| kubaryi | 0, 3, 5, 7, 10 (minor pentatonic) |
-| brachyrhynchos | 0, 0, -5, -7, -10, -7, -5, 0, 5, 7, 12, 17, 19, 24, 19, 17, 15, 12 |
-| culminatus | 0, 0, 2, 7, 14, 21, 28, 36, 30, 18, 12 |
-| bennetti | 0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 14, 12, 11, 9, 7, 5, 4, 2, 0 |
-| levaillantii | 0, 7, 0, 12, 0, 19 |
-| torquatus | 0, 0, 0, 0, -7, 0, 7, 14, 21, 28, 12, 12, 12, 12 |
-| corone | 0, 11, 9, 7, 5, 4, 2, 0 |
-| capensis | 0, -3, -5, -7, -10, 11, 7, 5, 2, 0 |
-| edithae | 0, 23, 2, 21, 4, 21, 5, 19, 7, 17, 11, 16, 12, 14, 12 |
-| enca | 0, 0, 2, 4, 5, 7, 9, 11, 14, -14, -10, -8, -7, -5, -3, -3, -1, 0 |
-| florensis | 0, 12, 24, -24, 0, 0, 0, -24, 24, 19, 12 |
-| fuscicapillus | 0, 2, 14, 2, 0, 5, 7, 12, 10, -2, 10, 12 |
+| kubaryi | 0, 3, 5, 7, 10, 12, 15 (minor pentatonic) |
+| corone | 0, 11, 9, 7, 5, 4, 2 |
+| levaillantii | 0, 7, 12, 5, 0, 5, 12 |
+| culminatus | 0, 7, 12, 24, -12, 0, 12 |
+| edithae | 0, 24, 5, 22, 7, 19, 12 |
+| florensis | 0, 17, -17, 0, -17, 17, 12 |
+| brachyrhynchos | 0, -7, -10, 12, 24, 17, 12 |
 
 TODO bitcrusher diagram
 
 The bitcrusher uses crow output [quantizer](https://monome.org/docs/crow/reference/#quantize-to-scales) to do distortion. The bitcrush value is the scaling variable, so a value of 1.0 results in 1 volt per octave quantization of the output voltage. Any oscillator with bitcrush at 1.0 when slowed down could be used as a v/oct sequence. Temperament is fixed to 12. The scale used for quantization is chosen from the species list. The first 4 species are chromatic, major, minor, and minor pentatonic. Scale values can be out of order to create arpeggios, but also scales can be much longer than 12 notes and have note values well outside the range 0 - 12.  
 
-The range of voltage for each octave is defined by bitcrush. Each octave is divided evenly into a number of sections equal to the number of notes in the scale. For any given voltage, first you find the section it is in, then crow calculates the quantized voltage based on the note. Metaphorically, it applies the shape of the scale across the v/oct range. For example, the shape of the stairstep voltage waveform that occurs between 0V and 1V when quantizing to a major scale if bitcrush is 1 v/oct would be stretched across the voltage range 0V and 5V if bitcrush is set to 5 v/oct. For this reason, a variety of scales can be used to significantly change the tone of the bitcrushing. Feel free to alter the scales yourself!  
+The range of voltage for each octave is defined by bitcrush. Each octave is divided evenly into a number of sections equal to the number of notes in the scale. For any given voltage, first you find the section it is in, then crow calculates the quantized voltage based on the note. Metaphorically, it applies the shape of the scale across the v/oct range. For example, the shape of the stairstep voltage waveform that occurs between 0V and 1V when quantizing to a major scale if bitcrush is 1 v/oct would be stretched across the voltage range 0V and 5V if bitcrush is set to 5 v/oct. For this reason, a variety of scales can be used to significantly change the tone of the bitcrushing. Feel free to alter the scales yourself, but there needs to be a strict length of 7 values in the scale!  
 
 An amplitude modulation depth of 1 for maximum velocity results in an oscillator amplitude of ±5 V. Crow hardware is limited to -5 V and 10 V. The `amp limit pre-bit` parameter sets the maximum range of voltage that drumcrow will request. It defaults to ±10 V. By increasing the amplitude modulation depth to 2, you can increase the oscillator amplitude to ±10 V and crow will clip the bottom part of the waveform. By setting `amp limit pre-bit` parameter to ±20 V or ±40 V and increasing the amplitude modulation depth even more, you can clip both the top and bottom parts of the waveform for a more overdriven tone. The combination of multiple envelopes modulation amplitude and bitcrush values between 0 and 5 can generate a lot of varied distortion tones.  
+
+Mutate is used with bitcrush and corvus. Mutate will multiply all values of the corvus species scale up to a value of +/- 24. At mutate = 1, the values of the corvus scale are unchanged. At mutate = 0, the scale values are evenly distributed across the v/oct range. If mutate multiplies a scale value to above 24, it will start to decrease negatively below 24 by 4 times the rate. Similarly values below -24 will increase positively at 4 times the rate. This creates a lot of variation in the distortion tone when using high mutate values or when modulating mutate. Modulating between -1 and +1 there will be a small change in tone but not much change in distortion. Modulating to values above 1 or below -1 will give dramatically more distortion and interesting tones. Try using LFO to slowly modulate mutate to hear "wavetable" type tones.  
+
+TODO rewrite this with diagrams and examples
 
 ## Synth Shapes
 
@@ -128,12 +130,12 @@ These are the shapes from the [crow reference](https://monome.org/docs/crow/refe
 
 | Shapes | Description |
 | ------ | ----------- |
-| linear | connect the dots /\/ |
-| sine | looks like half a sine wave (default) |
-| logarithmic | rise quickly, settle slowly |
-| exponential | rise slowly, settle quickly |
-| now | go instantly to the destination then wait |
-| wait | wait at the current level, then go to the destination |
+| linear | triangle, saw, connect the dots /\/ |
+| sine | sine, looks like half a sine wave (default) |
+| logarithmic | fast rise, slow settle |
+| exponential | slow rise, fast settle |
+| now | square, go instantly to the destination then wait |
+| wait | square, wait at the current level, then go to the destination |
 | over | move toward the destination and overshoot, before landing |
 | under | move away from the destination, then smoothly ramp up |
 | rebound | emulate a bouncing ball toward the destination |
@@ -213,6 +215,10 @@ Another bytebeat model. `pw` sets the step rate. `pw2` sets the modulo range. `c
 
 ## Synth Presets  
 
+In the param menu, navigate to synth preset to select the preset you'd like to load. Then navigate to `load preset` and press KEY 3 to load the selected preset. `init` is a sine wave oscillator with a short decay envelope oscillating between +/- 5 V. This is the default preset loaded to all outputs. Kick transposes down -24 steps and utilizes the note envelope to quickly sweep the oscillator frequency from high to low emulating a kick drum sound. Snare and hihat both utilize the noise synth model and have short amplitude decay envelopes.  
+
+The CV presets allow drumcrow to be used as a CV source. Each utilizes var_saw with a pulse width of 1 to create a constant voltage output, then uses the envelopes to modulate the amplitude of the synth model. CV Trigger is set up to be a short square ish trigger or gate if the amp cycle freq is lengthened. CV Envelope is a rise / fall envelope. CV Scale sets bitcrush to 1 v/oct and maps the midi note to the amplitude of the synth model. All 3 envelopes can be used simultaenously for making various modulation signals. Try combining looping envelopes each modulating amplitude at different rates using CV Scale to create quantized chromatic lfos, or pick a scale to quantize to using ^^corvus.  
+
 | Preset | Description |
 | ----- | -------- |
 | init | Sine wave oscillator with decay envelope |
@@ -250,16 +256,66 @@ Y is synth model (1 - 7)
 Z is synth shape (1 - 9)
 ```
 
-For function 2, here are the parameter index numbers for each parameter.  
+For function 2, here are the parameter index numbers. Listed in same order as norns param menu. 
 
-dc_idx = {  
-    mfreq = 1, note = 2, dcAmp = 3, pw = 4, pw2 = 5, bit = 6, splash = 7,  
-    a_mfreq = 8,  a_note = 9,  a_amp = 10, a_pw = 11, a_pw2 = 12, a_bit = 13, a_cyc = 14, a_sym = 15, a_curve = 16, a_loop = 17, a_phase = 18,  
-    l_mfreq = 19, l_note = 20, l_amp = 21, l_pw = 22, l_pw2 = 23, l_bit = 24, l_cyc = 25, l_sym = 26, l_curve = 27, l_loop = 28, l_phase = 29,  
-    n_mfreq = 30, n_note = 31, n_amp = 32, n_pw = 33, n_pw2 = 34, n_bit = 35, n_cyc = 36, n_sym = 37, n_curve = 38, n_loop = 39, n_phase = 40,  
-    transpose = 41, model = 42, shape = 43,  
-    a_reset = 44, l_reset = 45, n_reset = 46, species = 47, n_to_dcAmp = 48, a_limit = 49, birdsong = 50, flock = 51  
-}  
+global detune = 56  
+synth shape = 43,  
+synth model = 42,  
+birdsong = 50,  
+flock size = 51,  
+midi note -> amp = 48,  
+max freq = 1,  
+note = 2, (hidden from menu)  
+amplitude = 3, (hidden from menu)  
+transpose = 41,  
+pulse width = 4,  
+pulse width 2 = 5,  
+^^bitcrush (v/oct) = 6,  
+^^mutuate = 52,  
+^^corvus = 47,  
+^^amp limit pre-bit = 49,  
+splash = 7,  
+amp -> max freq = 8,  
+amp -> osc note = 9,  
+amp -> amplitude = 10,  
+amp -> pulse width = 11,  
+amp -> pwlse width 2 = 12,  
+amp -> bitcrush = 13,  
+amp -> mutate = 53,  
+amp cycle freq = 14,  
+amp symmetry = 15,  
+amp curve = 16,  
+amp loop = 17,  
+amp reset = 44,  
+amp phase = 18, (hidden)  
+
+lfo -> max freq = 19,  
+lfo -> osc note = 20,  
+lfo -> amplitude = 21,  
+lfo -> pulse width = 22,  
+lfo -> pwlse width 2 = 23,  
+lfo -> bitcrush = 24,  
+lfo -> mutate = 54,  
+lfo cycle freq = 25,  
+lfo symmetry = 26,  
+lfo curve = 27,  
+lfo loop = 28,  
+lfo reset = 45,  
+lfo phase = 29, (hidden)  
+
+note -> max freq = 30,  
+note -> osc note = 31,  
+note -> amplitude = 32,  
+note -> pulse width = 33,  
+note -> pwlse width 2 = 34,  
+note -> bitcrush = 35,  
+note -> mutate = 55,  
+note cycle freq = 36,  
+note symmetry = 37,  
+note curve = 38,  
+note loop = 39,  
+note reset = 46,  
+note phase = 40, (hidden)  
 
 TODO make this nicer  
 
