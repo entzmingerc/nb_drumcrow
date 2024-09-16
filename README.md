@@ -94,8 +94,7 @@ The 3 envelopes, `amp`, `lfo`, and `note` are functionally identical, but have d
 | amp loop | if on: envelope begins again after fall is complete | off, on | amp & note: off, lfo on |
 | amp reset | if on: envelope resets from the start of rise during note on | off, on | amp & note: on, lfo off |
 
-![symmetry and curve](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/symmetry_curve.png?raw=true)  
-![loop and reset](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/loop_reset.png?raw=true)  
+![symmetry and curve](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/envelope_properties.png?raw=true)  
 
 Each envelope has the same set of modulation targets, modulation depth ranges, and envelope parameters. The modulation depth adds to the current value of the parameter it is modulating (except for amplitude). For example: pulse width at 0.4, lfo -> pulse width modulation depth at 0.2, then you'll hear pulse width modulate back and forth between 0.4 and 0.6. For modulation depth -0.8, you'd hear 0.4 to -0.4. For amplitude, if amplitude modulation depth is 0 for all envelopes then you'll hear silence.  
 
