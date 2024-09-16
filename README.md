@@ -38,22 +38,25 @@ Any output could be set as a CV Trigger, CV Envelope, or CV LFO with optional qu
 TODO how do set up 
 
 # Parameters
-channel, output, player, voice
 
 ## Settings
 
 Default parameter values are the values loaded using the init preset.  
+TODO global detune, trigger behavior, param behavior  
 
 | Parameter | Description | Range | Default |
 |-----------|-------------|-------|---------|
 | resend code to crow | (GLOBAL) reuploads audio engine code to run on crow | BUTTON | not pressed |
 | param behavior | (GLOBAL) set this player or all players when changing a value | individual, all | individual |
-| trigger behavior | (GLOBAL) controls how all drumcrow nb players deal with note on | individual, round robin, all | individual |
+| trigger behavior | (GLOBAL) controls what to do with note on trigger | individual, round robin, all | individual |
 | global detune | (GLOBAL) multiplier to all channel frequencies, channel 1 frequency | -0.5, 1.0 | 0 |
 | synth preset | selects which preset to load | see synth presets | init |
 | load preset | loads the synth preset | BUTTON | not pressed |
 
 ## Oscillator
+
+TODO  birdsong, flock size, midi note -> amp, etc all the others, list the modulation destinations here
+
 | Parameter | Description | Range | Default |
 |-----------|-------------|-------|---------|
 | synth shape | affects tone, sets voltage path between to() calls in ASL model | 1-9 | sine |
@@ -72,6 +75,10 @@ Default parameter values are the values loaded using the init preset.
 | splash | amount of randomness applied to the frequency | 0, 3 | 0 |
 
 ## Envelopes (Amp, LFO, Note)
+
+The 3 envelopes, `amp`, `lfo`, and `note` are functionally identical, but have different values when loading the init preset.  
+`amp` modulates amplitude by 1.0, loop is off, and reset is on. `lfo` loop is on and reset is off. `note` loop is off and reset is on.  
+
 | Parameter | Description | Range | Default |
 |-----------|-------------|-------|---------|
 | amp -> max freq | modulation depth of maximum frequency | -1, 1 | 0 |
@@ -87,21 +94,13 @@ Default parameter values are the values loaded using the init preset.
 | amp loop | if on: envelope begins again after fall is complete | off, on | amp & note: off, lfo on |
 | amp reset | if on: envelope resets from the start of rise during note on | off, on | amp & note: on, lfo off |
 
-The 3 envelopes, `amp`, `lfo`, and `note` are functionally identical, but have different values when loading the init preset. `amp` modulates amplitude by 1.0, loop is off, and reset is on. `lfo` loop is on and reset is off. `note` loop is off and reset is on.  
+![symmetry and curve](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/symmetry_curve.png?raw=true)  
+![loop and reset](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/loop_reset.png?raw=true)  
 
 Each envelope has the same set of modulation targets, modulation depth ranges, and envelope parameters. The modulation depth adds to the current value of the parameter it is modulating (except for amplitude). For example: pulse width at 0.4, lfo -> pulse width modulation depth at 0.2, then you'll hear pulse width modulate back and forth between 0.4 and 0.6. For modulation depth -0.8, you'd hear 0.4 to -0.4. For amplitude, if amplitude modulation depth is 0 for all envelopes then you'll hear silence.  
 
-The `cycle freq` value isn't literally the frequency. Low values are longer cycle times, high values are shorter cycle times.  
+TODO symmetry, curve, loop, resetz
 
-TODO global detune, birdsong, flock size, midi note -> amp, etc all the others
-
-TODO curve plots
-
-TODO symmetry plots
-
-TODO loop plots
-
-TODO reset plots
 
 ## Bitcrusher
 
@@ -120,7 +119,7 @@ TODO reset plots
 | florensis | 0, 17, -17, 0, -17, 17, 12 |
 | brachyrhynchos | 0, -7, -10, 12, 24, 17, 12 |
 
-TODO bitcrusher diagram
+![bitcrush](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/bitcrush.png?raw=true)  
 
 The bitcrusher uses crow output [quantizer](https://monome.org/docs/crow/reference/#quantize-to-scales) to do distortion. The bitcrush value is the scaling variable, so a value of 1.0 results in 1 volt per octave quantization of the output voltage. Any oscillator with bitcrush at 1.0 when slowed down could be used as a v/oct sequence. Temperament is fixed to 12. The scale used for quantization is chosen from the species list. The first 4 species are chromatic, major, minor, and minor pentatonic. Scale values can be out of order to create arpeggios, but also scales can be much longer than 12 notes and have note values well outside the range 0 - 12.  
 
@@ -128,11 +127,11 @@ The range of voltage for each octave is defined by bitcrush. Each octave is divi
 
 An amplitude modulation depth of 1 for maximum velocity results in an oscillator amplitude of ±5 V. Crow hardware is limited to -5 V and 10 V. The `amp limit pre-bit` parameter sets the maximum range of voltage that drumcrow will request. It defaults to ±10 V. By increasing the amplitude modulation depth to 2, you can increase the oscillator amplitude to ±10 V and crow will clip the bottom part of the waveform. By setting `amp limit pre-bit` parameter to ±20 V or ±40 V and increasing the amplitude modulation depth even more, you can clip both the top and bottom parts of the waveform for a more overdriven tone. The combination of multiple envelopes modulation amplitude and bitcrush values between 0 and 5 can generate a lot of varied distortion tones.  
 
+![mutate](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/mutate.png?raw=true)  
+
 Mutate is used with bitcrush and corvus. Mutate will multiply all values of the corvus species scale up to a value of +/- 24. At mutate = 1, the values of the corvus scale are unchanged. At mutate = 0, the scale values are evenly distributed across the v/oct range. If mutate multiplies a scale value to above 24, it will start to decrease negatively below 24 by 4 times the rate. Similarly values below -24 will increase positively at 4 times the rate. This creates a lot of variation in the distortion tone when using high mutate values or when modulating mutate. Modulating between -1 and +1 there will be a small change in tone but not much change in distortion. Modulating to values above 1 or below -1 will give dramatically more distortion and interesting tones. Try using LFO to slowly modulate mutate to hear "wavetable" type tones.  
 
 Synth shapes `logarithmic` and `exponential` shapes have unique mutate behavior. This will multiply the absolute value of mutate and the temperament (12) of the quantizer. So when mutate approaches zero, there's an interesting spike in distortion as the temperament of the quantizer approaches 0. Try modulating mutate through 0 to hear the bitcrush amount swell in and out with distortion.  
-
-TODO rewrite this with diagrams and examples 
 
 ## Synth Shapes
 
@@ -150,6 +149,8 @@ These are the shapes from the [crow reference](https://monome.org/docs/crow/refe
 | under | move away from the destination, then smoothly ramp up |
 | rebound | emulate a bouncing ball toward the destination |
 
+![shapes](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/synth_shape.png?raw=true)  
+
 Using the `var_saw` synth model in the init preset, it's easy to hear how shape affects the tone of the oscillator. Linear is a triangle wave, and using `pulse width` it can be turned into sawtooth wave. Sine is a sine wave. Now and wait are both square waves but have opposite polarity. Rebound introduces higher frequency components with the extra bounces in the waveform.  
 
 The `var_saw` ASL model can be turned into a constant voltage source using `now` shape and `pulse width` set to 1. Then, the amplitude of the oscillator can be used to sequence CV for triggers, envelopes, and v/oct signals. 
@@ -164,6 +165,8 @@ Each drumcrow oscillator must have a `dyn{dcAmp=0}` in its ASL model. Other dyns
 | cyc | Controls update rate of the ASL loop |
 | pw | pulse width, function changes with each ASL model |
 | pw2 | pulse width 2, function changes with each ASL model |
+
+![shapes](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/synth_models.png?raw=true)  
 
 **var_saw**  
 ```
