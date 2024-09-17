@@ -30,6 +30,15 @@ This is a mod for monome norns that turns a monome crow into a synthesizer using
 
 # Parameters
 
+## MOD Menu
+
+| Parameter | Description | Range | Default |
+|-----------|-------------|-------|---------|
+| number of crows | one crow or two crows connected via i2c | 1, 2 | 1 |
+| script start upload | whether or not to upload the code to crow automatically on script start | off, on | on |
+
+These settings can be found in the SYSTEM > MODS > nb_drumcrow menu that exists when the mod is enabled on norns. If you want to expand the number of voices from 4 to 8, you can set the number of crows to 2 and restart norns. There will now be 8 voices to select from in the nb voice selector (drumcrow 1 - 8). After loading a script and uploading code to the first crow, disconnect the USB connection to crow and connect norns to the second crow. Then press `resend code to crow` to upload code to the second crow. Now, the second crow that is currently connected to norns will be associated with drumcrow voices 1-4 and the other crow will be voices 5-8. This will not stay uploaded to crow if the power is turned off on crow, so it's necessary to do this each time you want to use 8 voices. To prevent automatically uploading the code during script start, set `script start upload` to off.  
+
 ## Settings 
 
 | Parameter | Description | Range | Default |
