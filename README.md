@@ -242,7 +242,7 @@ The CV presets allow drumcrow to be used as a CV source. Each utilizes var_saw w
 
 ## Teletype Operation  
 
-It's just `CROW.C4`. Many params require decimal values, but teletype and crow seemingly do not send decimal values over i2c. To get around this, each value sent by teletype should be mulitplied by 100. For example, sending a decimal value 0.01 should be 1, and 16 should be 1600. When crow receives the value, it divides it by 100.
+It's just `CROW.C4`. This doesn't work with 8 voice mode currently, only 4 voice with one crow. Many params require decimal values, but teletype and crow seemingly do not send decimal values over i2c. To get around this, each value sent by teletype should be mulitplied by 100. For example, sending a decimal value 0.01 should be 1, and 16 should be 1600. When crow receives the value, it divides it by 100.
  
 ```
 CROW.C4 W X Y Z 
