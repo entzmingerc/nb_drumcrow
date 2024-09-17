@@ -1,23 +1,24 @@
 # nb_drumcrow  
-This is a mod for monome norns that turns a monome crow into a synthesizer using nb. It can also be uploaded to crow to work in standalone operation using teletype to sequence it over i2c.  
+This is a mod for monome norns that turns a monome crow into a synthesizer using [nb](https://github.com/sixolet/nb).  
 
 ### Features:
 - 4 monophonic synthesizers, one for each output of crow.  
-- Can trigger each individually, round robin (4 voice polysynth), or all simultaneously (monophonic 4 voice synth).  
-- Can use 2 crows connected via i2c to create an 8 voice version.  
-- Each output can trigger 1 or more additional voices for paired operation (v/oct & gate).  
-- Can be sequenced with any norns script that supports nb, teletype, or druid.  
+- Trigger each output individually, round robin (4 voice polysynth), or all simultaneously.  
+- Use 2 crows connected via i2c to create an 8 voice version.  
+- Trigger 1 or more additional voices for paired operation (v/oct & gate).  
+- Can be sequenced with any norns script that supports nb, with teletype, or with druid.  
 - Each output can be set to synthesize audio, gate/trigger, envelope, V/Oct CV signal quantized to a scale, or convert the midi note from nb to a V/Oct CV value.  
 - Each output has 3 cycling envelope modulation sources which map to 7 destinations.  
-- Crow output voltage quantizer used as wide ranging bitcrusher distortion.  
+- Crow quantizer used as a wide ranging bitcrusher distortion.  
 - Saturation, PWM, global detune, vibrato, FM, and other fun experimental crow synthesis.  
 
 # Requirements: 
-- monome crow
-- monome norns (if you want to use it as nb voice)
-- please install [nb](https://github.com/sixolet/nb) on your norns
-- then find a norns script that supports nb (pit orchisstra, arcologies, flora, cheat codes 2, washi, rudiments, nkria, dreamsequence, seeker, ...)  
-- upload the update_loop.lua file to crow for standalone use and use teletype to sequence it
+- monome crow  
+- monome norns (to use as nb voice)  
+- install [nb](https://github.com/sixolet/nb) on your norns  
+- find a norns script that supports nb (nkria, pit orchisstra, arcologies, flora, cheat codes 2, washi, rudiments, dreamsequence, seeker, tetra, ...)  
+- teletype: upload the update_loop.lua file to crow for standalone use
+- a eurorack mixer of some kind to listen to the audio from crow
 
 # Installation  
 1) Download this like you would any other script by typing `;install https://github.com/entzmingerc/nb_drumcrow` into maiden.  
@@ -25,24 +26,11 @@ This is a mod for monome norns that turns a monome crow into a synthesizer using
 3) Go to SYSTEM > RESTART, restart norns, then check your list of mods. It should have a dot "." to the left of the name indicating the mod has been loaded.  
 4) Load a script that supports nb.  
 5) Go to the norns params menu and select drumcrow 1, 2, 3, or 4 from your list of nb voices.  
-6) Start playing notes using a script with nb support.  
-
-# Usage
-TODO Basic instructions on how to use the synthesizer
-
-`nb` is a note-playing [voice library](https://github.com/sixolet/nb) for norns.  
-`nb_drumcrow` is an nb voice that turns each output of a monome crow into a monophonic synthesizer.  
-Each output of crow can be triggered individually, in a round robin way as a 4 voice polyphonic synth, or all at once.  
-Any output could be set as a CV Trigger, CV Envelope, or CV LFO with optional quantization for pitch sequences.
-
-TODO how do set up 
+6) Start playing notes with a norns script that uses nb.
 
 # Parameters
 
-## Settings
-
-Default parameter values are the values loaded using the init preset.  
-TODO global detune, trigger behavior, param behavior  
+## Settings 
 
 | Parameter | Description | Range | Default |
 |-----------|-------------|-------|---------|
@@ -53,9 +41,15 @@ TODO global detune, trigger behavior, param behavior
 | synth preset | selects which preset to load | see synth presets | init |
 | load preset | loads the synth preset | BUTTON | not pressed |
 
-## Oscillator
+Use `resend code to crow` to send code to crow to restart the sound engine. If you see "READY!" in maiden, then the upload has worked. The first time the mod is loaded on norns, all outputs will be set to the init preset. Whenever `resend code to crow` is pressed, it will upload the code then set all drumcrow nb voices to the current parameter values listed on norns. The default parameter values listed are the values of the init preset.  
 
-TODO  birdsong, flock size, midi note -> amp, etc all the others, list the modulation destinations here
+Param behavior can be set to "individual" or "all". If set to individual, then any change of parameter on norns will only change the value for the current drumcrow voice. If set to all, then it changes the value for all drumcrow voices at once. Trigger behavior can be set to "individual", "round robin", or "all" which will only play this drumcrow voice, will cycle through each of the 4 outputs of crow, or will play the note on all 4 outputs at once, respectively. Use param behavior "all" with trigger behavior "round robin" to use all 4 outputs of crow as a 4 voice polyphonic synthesizer. Use param behavior "individual" and trigger behavior "individual" to use this as a drum machine to play each output independently.  
+
+(GLOBAL) settings always apply their values to all drumcrow voices. Therefore, you can't have two drumcrow voices with different trigger behaviors. Global detune will offset the frequency of each drumcrow voice by a slight amount. At 1, frequencies for outputs 1 - 4 will be multiplied by x1, x2, x4, x8, and at -0.5 they are multiplied by x1, x0.5, x0.25, x0.125. Use very small values for chorus effects.  
+
+Synth preset selects which preset to load. Load preset will load the selected preset. Use param behavior "all" when loading a preset to load the preset to all drumcrow voices.  
+
+## Oscillator
 
 | Parameter | Description | Range | Default |
 |-----------|-------------|-------|---------|
@@ -74,10 +68,13 @@ TODO  birdsong, flock size, midi note -> amp, etc all the others, list the modul
 | ^^amp limit pre-bit | limits amplitude before bitcrusher | ±0, ±1, ±5, ±10, ±20, ±40 | ±10 |
 | splash | amount of randomness applied to the frequency | 0, 3 | 0 |
 
-## Envelopes (Amp, LFO, Note)
+Synth shape selects the shape used to travel between voltages set by the ASL synth model (see synth shapes section). Synth model selects the ASL synth model (see synth models section). Each time a note is played, Birdsong will step through the species sequence and will add the value at its position in the sequence to the note being played. Flock size is the number of drumcrow voices triggered each time a note is played for this voice. For example, if drumcrow 2 is played, and flock size is 3, then it will play drumcrow 2, 3, and 4. This always increments positively and wraps around from 4 back to 1. Try using birdsong and flock size to create generative melodies. Midi note -> amp will convert the midi note played to amplitude. This is intended to be used with CV Pitch preset to convert the midi note to a constant voltage v/oct signal.  
 
-The 3 envelopes, `amp`, `lfo`, and `note` are functionally identical, but have different values when loading the init preset.  
-`amp` modulates amplitude by 1.0, loop is off, and reset is on. `lfo` loop is on and reset is off. `note` loop is off and reset is on.  
+Max freq sets the maximum oscillator frequency (cyc) from 1% to 100%. All models are limited to 5919 Hz (midi note 114) and when using logarithmic and exponential shapes frequency is limited to 2793 Hz (midi note 101). Fake filter sweep sounds can be achieved by mapping an LFO to the max freq. Transpose offsets the frequency value by half step notes. Pulse width and pulse width 2 vary in behavior with each ASL model. Bitcrush sets the v/oct amount of the crow quantizer. If bitcrush is less than or equal to 0, then no quantization is applied to the output. Mutate multiplies the values of the selected scale (corvus) being used with the bitcrusher. 
+
+Amp limit pre-bit limits the amplitude of the signal before the bitcrusher. Crow can only output values -5 V to +10 V, so any amplitudes requested will be hard clipped on the output. Splash adds a random amount to the oscillator frequency, use a small value for a chorus like effect, or a large value for a deteriorated signal.  
+
+## Envelopes (Amp, LFO, Note)
 
 | Parameter | Description | Range | Default |
 |-----------|-------------|-------|---------|
@@ -94,16 +91,15 @@ The 3 envelopes, `amp`, `lfo`, and `note` are functionally identical, but have d
 | amp loop | if on: envelope begins again after fall is complete | off, on | amp & note: off, lfo on |
 | amp reset | if on: envelope resets from the start of rise during note on | off, on | amp & note: on, lfo off |
 
+The 3 envelopes, `amp`, `lfo`, and `note` are functionally identical, but have different values when loading the init preset. `amp` modulates amplitude by 1.0, loop is off, and reset is on. `lfo` loop is on and reset is off. `note` loop is off and reset is on. Each envelope has the same set of modulation targets, modulation depth ranges, and envelope parameters. The modulation depth adds to the current value of the parameter it is modulating (except for amplitude). For example: pulse width at 0.4, lfo -> pulse width modulation depth at 0.2, then you'll hear pulse width modulate back and forth between 0.4 and 0.6. For modulation depth -0.8, you'd hear 0.4 to -0.4. For amplitude, if amplitude modulation depth is 0 for all envelopes then you'll hear silence.  
+
 ![symmetry and curve](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/envelope_properties.png?raw=true)  
 
-Each envelope has the same set of modulation targets, modulation depth ranges, and envelope parameters. The modulation depth adds to the current value of the parameter it is modulating (except for amplitude). For example: pulse width at 0.4, lfo -> pulse width modulation depth at 0.2, then you'll hear pulse width modulate back and forth between 0.4 and 0.6. For modulation depth -0.8, you'd hear 0.4 to -0.4. For amplitude, if amplitude modulation depth is 0 for all envelopes then you'll hear silence.  
-
-TODO symmetry, curve, loop, resetz
-
+Cycle freq sets the frequency wavelength, smaller values result in longer times, higher values are shorter times. Symmetry controls ratio between rise time and fall time. At -1, rise time is 0%, fall time is 100%. At 0.99, rise time is 100% and fall time is 0%. At 1, the fall stage doesn't trigger and it will stay at the maximum value. Curve controls the response curve of the envelope from a logarithmic shape at -5, linear shape at 0, and an exponential shape at +5. Loop controls whether or not the rise stage is triggered again at the end of the fall stage. Reset controls whether or not the envelope resets to the start of the rise stage when a note is played. Envelopes can only be reset if in the fall stage of the envelope. Thus, envelopes will ignore resets if the envelope is still rising.  
 
 ## Bitcrusher
 
-9 species of drumcorvus have been discovered so far.  
+![bitcrush](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/bitcrush.png?raw=true)  
 
 | Species | Scale |
 |-----------|-------------|
@@ -117,8 +113,6 @@ TODO symmetry, curve, loop, resetz
 | edithae | 0, 24, 5, 22, 7, 19, 12 |
 | florensis | 0, 17, -17, 0, -17, 17, 12 |
 | brachyrhynchos | 0, -7, -10, 12, 24, 17, 12 |
-
-![bitcrush](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/bitcrush.png?raw=true)  
 
 The bitcrusher uses crow output [quantizer](https://monome.org/docs/crow/reference/#quantize-to-scales) to do distortion. The bitcrush value is the scaling variable, so a value of 1.0 results in 1 volt per octave quantization of the output voltage. Any oscillator with bitcrush at 1.0 when slowed down could be used as a v/oct sequence. Temperament is fixed to 12. The scale used for quantization is chosen from the species list. The first 4 species are chromatic, major, minor, and minor pentatonic. Scale values can be out of order to create arpeggios, but also scales can be much longer than 12 notes and have note values well outside the range 0 - 12.  
 
