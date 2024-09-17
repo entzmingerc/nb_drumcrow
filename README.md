@@ -146,7 +146,7 @@ The var_saw ASL model can be turned into a constant voltage source using `now` s
 
 ## Synth Models
 
-Each drumcrow oscillator must have a `dyn{dcAmp=0}` in its ASL model. Other dyns like `cyc`, `pw`, and `pw2` are used as well to create the ASL models. These are the parameters being updated by the 3 modulation envelopes. Each ASL model is built around the loop{ <asl> } construct which restarts the sequence once it's complete. The primitive to( destination, time, shape ) is used to construct each section of the ASL model. By setting time to a small enough value using `cyc`, the output voltage of crow can oscillate at audio rates. Oscillator frequency, splash, transpose, and max frequency are used to calculate the value of `cyc`. Amplitude interacts with `dcAmp`. Pulse width interacts with `pw`. Pulse width 2 interacts with `pw2`. Lua updates the dyn variables at a rate of approximately 100 Hz, but crow synthesizes the audio at 48 kHz. 
+![shapes](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/synth_models.png?raw=true)  
 
 | Dyns | Description |
 | ----- | --------- |
@@ -155,7 +155,7 @@ Each drumcrow oscillator must have a `dyn{dcAmp=0}` in its ASL model. Other dyns
 | pw | pulse width, function changes with each ASL model |
 | pw2 | pulse width 2, function changes with each ASL model |
 
-![shapes](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/synth_models.png?raw=true)  
+Each drumcrow oscillator must have a `dyn{dcAmp=0}` in its ASL model. Other dyns like `cyc`, `pw`, and `pw2` are used as well to create the ASL models. These are the parameters being updated by the 3 modulation envelopes. Each ASL model is built around the loop{ <asl> } construct which restarts the sequence once it's complete. The primitive to( destination, time, shape ) is used to construct each section of the ASL model. By setting time to a small enough value using `cyc`, the output voltage of crow can oscillate at audio rates. Oscillator frequency, splash, transpose, and max frequency are used to calculate the value of `cyc`. Amplitude interacts with `dcAmp`. Pulse width interacts with `pw`. Pulse width 2 interacts with `pw2`. Lua updates the dyn variables at a rate of approximately 100 Hz, but crow synthesizes the audio at 48 kHz.  
 
 **var_saw**  
 ```
@@ -217,10 +217,6 @@ Another bytebeat model. `pw` sets the step rate. `pw2` sets the modulo range. `c
 
 ## Synth Presets  
 
-In the param menu, navigate to synth preset to select the preset you'd like to load. Then navigate to `load preset` and press KEY 3 to load the selected preset. `init` is a sine wave oscillator with a short decay envelope oscillating between +/- 5 V. This is the default preset loaded to all outputs. Kick transposes down -24 steps and utilizes the note envelope to quickly sweep the oscillator frequency from high to low emulating a kick drum sound. Snare and hihat both utilize the noise synth model and have short amplitude decay envelopes.  
-
-The CV presets allow drumcrow to be used as a CV source. Each utilizes var_saw with a pulse width of 1 to create a constant voltage output, then uses the envelopes to modulate the amplitude of the synth model. CV Trigger is set up to be a short square ish trigger or gate if the amp cycle freq is lengthened. CV Envelope is a rise / fall envelope. CV Scale sets bitcrush to 1 v/oct and maps the midi note to the amplitude of the synth model. All 3 envelopes can be used simultaenously for making various modulation signals. Try combining looping envelopes each modulating amplitude at different rates using CV Scale to create quantized chromatic lfos, or pick a scale to quantize to using ^^corvus.  
-
 | Preset | Description |
 | ----- | -------- |
 | init | Sine wave oscillator with decay envelope |
@@ -231,11 +227,13 @@ The CV presets allow drumcrow to be used as a CV source. Each utilizes var_saw w
 | CV envelope | rise / fall envelope using all 3 envelopes |
 | CV scale | voltages quantized to 1 v/oct |
 
-TODO more explanation  
+In the param menu, navigate to synth preset to select the preset you'd like to load. Then navigate to `load preset` and press KEY 3 to load the selected preset. `init` is a sine wave oscillator with a short decay envelope oscillating between +/- 5 V. This is the default preset loaded to all outputs. Kick transposes down -24 steps and utilizes the note envelope to quickly sweep the oscillator frequency from high to low emulating a kick drum sound. Snare and hihat both utilize the noise synth model and have short amplitude decay envelopes.  
+
+The CV presets allow drumcrow to be used as a CV source. Each utilizes var_saw with a pulse width of 1 to create a constant voltage output, then uses the envelopes to modulate the amplitude of the synth model. CV Trigger is set up to be a short square ish trigger or gate if the amp cycle freq is lengthened. CV Envelope is a rise / fall envelope. CV Scale sets bitcrush to 1 v/oct and maps the midi note to the amplitude of the synth model. All 3 envelopes can be used simultaenously for making various modulation signals. Try combining looping envelopes each modulating amplitude at different rates using CV Scale to create quantized chromatic lfos, or pick a scale to quantize to using ^^corvus.  
 
 ## Teletype Operation  
 
-It's just `CROW.C4`. Many params require decimal values, but teletype and crow don't seem to send decimal values over i2c. To get around this, I decided to multiply each value I send by 100, so a decimal value 0.01 becomes 1. Then when crow receives the value, it divides it by 100. On teletype, the parameter value (Z) for the function (2) when setting a param value, multiply any value you want to send by 100 and it will be set correctly on crow. For example, to send the number 5.4 you'd use 540 for Z in the CROW.C4 OP.  
+It's just `CROW.C4`. Many params require decimal values, but teletype and crow seemingly do not send decimal values over i2c. To get around this, each value sent by teletype should be mulitplied by 100. For example, sending a decimal value 0.01 should be 1, and 16 should be 1600. When crow receives the value, it divides it by 100.
  
 ```
 CROW.C4 W X Y Z 
@@ -246,16 +244,19 @@ Function 1: Note On!
 X is crow output (1, 2, 3, 4)
 Y is note (0 - 127)
 Z is velocity (always set this to 1 for now)
+Play note 60 with velocity 1 on output 2: CROW.C4 1 2 60 1
 
 Function 2: Set Parameter Value!
 X is crow output (1, 2, 3, 4)
 Y is parameter index (1 - 51)
 Z is parameter value (to send 5.4, you'd type 540)
+Set amp cycle freq to 0.5 on output 3: CROW.C4 2 3 14 50
 
 Function 3: Set Synth Model and Shape!
 X is crow output (1, 2, 3, 4)
 Y is synth model (1 - 7)
 Z is synth shape (1 - 9)
+Set synth model bytebeat and shape to linear on output 1: CROW.C4 3 1 2 1
 ```
 
 For function 2, here are the parameter index numbers.  
