@@ -531,18 +531,11 @@ function add_drumcrow_player(i)
         end
 
         -- expected: note 0..127, vel 0..1
-        local function check_flock(bird)
-            if params:get(dc_param_IDs[bird]["flock"]) >= 2 then
-                for j = 1, (params:get(dc_param_IDs[bird]["flock"]) - 1) do
-                    trigger_note_crow((bird + j - 1) % DC_VOICES + 1, note, vel)
-                end
-            end
-        end
-
+        -- nb uses velocity 0 to 1, but sending it crow to crow over i2c rounds it to an integer
+        -- mult by 100 to send, then divide by 100 on receive
         local function trigger_note_crow(ch, note, vel)
+            -- print(ch, note, vel)
             if ch >= 5 then
-                -- nb uses velocity 0 to 1, but sending it crow to crow over i2c rounds it to an integer
-                -- mult by 100 to send, then divide by 100 on receive
                 crow.ii.crow[1].call4(1, ch - 4, note, vel * 100)
             else
                 crow.dc_note_on(ch, note, vel)
@@ -552,11 +545,19 @@ function add_drumcrow_player(i)
         local b = params:get(dc_param_IDs[i]["trig_behavior"])
         if b == 1 then -- individual
             trigger_note_crow(i, note, vel)
-            check_flock(i)
+            if params:get(dc_param_IDs[i]["flock"]) >= 2 then
+                for j = 1, (params:get(dc_param_IDs[i]["flock"]) - 1) do
+                    trigger_note_crow((i + j - 1) % DC_VOICES + 1, note, vel)
+                end
+            end
         elseif b == 2 then -- round robin
             dc_robin_idx = dc_robin_idx % DC_VOICES + 1
             trigger_note_crow(dc_robin_idx, note, vel)
-            check_flock(dc_robin_idx)
+            if params:get(dc_param_IDs[dc_robin_idx]["flock"]) >= 2 then
+                for j = 1, (params:get(dc_param_IDs[dc_robin_idx]["flock"]) - 1) do
+                    trigger_note_crow((dc_robin_idx + j - 1) % DC_VOICES + 1, note, vel)
+                end
+            end
         else -- all
             for j = 1, DC_VOICES do 
                 trigger_note_crow(j, note, vel)
