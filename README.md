@@ -20,13 +20,13 @@ This is a mod for monome norns that turns a monome crow into a synthesizer using
 - a eurorack mixer of some kind to listen to the crow outputs  
 
 # Tutorials and Demos  
-![main tutorial](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/tutorial_small.png?raw=true)  
+[![main tutorial](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/tutorial_small.png?raw=true)](https://www.youtube.com/watch?v=DU_R516qjAc)  
 Tutorial covering installation and all parameters of nb_drumcrow when used as an nb voice.  
 
-![teletype tutorial](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/teletype_tutorial_small.png?raw=true)  
+[![teletype tutorial](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/teletype_tutorial_small.png?raw=true)](https://www.youtube.com/watch?v=tyMZhqaFUF0)  
 Tutorial on how to use teletype to sequence nb_drumcrow with and without norns.  
 
-![bitcrusher tutorial](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/waveshaping_tutorial_small.png?raw=true)  
+[![bitcrusher tutorial](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/waveshaping_tutorial_small.png?raw=true)](https://www.youtube.com/watch?v=4YD-ceCRmh8)  
 Exploration of the bitcrusher and waveshaping on nb_drumcrow.  
 
 video demo of nb_drumcrow as a [bass synth](https://www.youtube.com/watch?v=Fiv2_rLXr9c).  
