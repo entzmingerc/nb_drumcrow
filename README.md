@@ -19,6 +19,20 @@ This is a mod for monome norns that turns a monome crow into a synthesizer using
 - teletype: upload the update_loop.lua file to crow for standalone use  
 - a eurorack mixer of some kind to listen to the crow outputs  
 
+# Tutorials and Demos  
+![main tutorial](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/tutorial_small.png?raw=true)  
+Tutorial covering installation and all parameters of nb_drumcrow when used as an nb voice.  
+
+![teletype tutorial](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/teletype_tutorial_small.png?raw=true)  
+Tutorial on how to use teletype to sequence nb_drumcrow with and without norns.  
+
+![bitcrusher tutorial](https://github.com/entzmingerc/nb_drumcrow/blob/main/pics/waveshaping_tutorial_small.png?raw=true)  
+Exploration of the bitcrusher and waveshaping on nb_drumcrow.  
+
+video demo of nb_drumcrow as a [bass synth](https://www.youtube.com/watch?v=Fiv2_rLXr9c).  
+video demo of nb_drumcrow in [8 voice mode](https://www.youtube.com/watch?v=Bqm6iWPJ-WQ).  
+
+
 # Installation  
 1) Download this like you would any other script by typing `;install https://github.com/entzmingerc/nb_drumcrow` into maiden.  
 2) Turn on the mod: navigate to SYSTEM > MODS > nb_drumcrow, turn enc3 to the right until you see a "+". This tells norns to load the mod at the next power on.  
