@@ -9,7 +9,7 @@ This is a mod for monome norns that turns a monome crow into a synthesizer using
 - Trigger 1 or more additional voices for paired operation (v/oct & gate pairs).  
 - Can be sequenced with teletype, with druid, with another crow, or with any norns script that supports nb.  
 - Each output has 3 cycling envelope modulation sources which map to 7 destinations.  
-- Wide ranging bitcrusher distortion, saturation, PWM, global detune, vibrato, FM, and other fun experimental crow synthesis.  
+- Bitcrusher waveshaper, saturation, PWM, global detune, vibrato, FM, and other fun experimental crow synthesis.  
 
 # Requirements: 
 - monome crow  
