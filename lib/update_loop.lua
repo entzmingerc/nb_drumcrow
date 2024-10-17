@@ -174,7 +174,7 @@ local function dc_update_loop_maths(i)
     max_freq = min_(max_(max_freq, 0.01), 1)
     local cyc = note_up * 12 + s.transpose
     cyc = 13.75 * (2 ^ ((cyc - 9) / 12)) -- midi num to freq to sec
-    cyc = 1/(min_(max_(cyc * 0.97655 * s.detune, 0.1), FREQ_LIMIT[s.shape] * max_freq)) -- for correct (de)tuning
+    cyc = 1/(min_(max_(cyc * 1.023996 * s.detune, 0.1), FREQ_LIMIT[s.shape] * max_freq)) -- for correct (de)tuning
     output[i].dyn.cyc = splish > 0 and (rnd_()*0.1 < cyc/0.1 and cyc + (cyc * 0.2 * rnd_()*splish) or cyc + rnd_()*0.002*splish) or cyc
     if bitz > 0 then
         if s.species >= 2 and s.shape ~= 3 and s.shape ~= 4 then
