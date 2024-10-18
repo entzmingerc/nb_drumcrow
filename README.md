@@ -142,7 +142,7 @@ Cycle freq sets the frequency wavelength, smaller values result in longer times,
 | florensis | 0, 17, -17, 0, -17, 17, 12 |
 | brachyrhynchos | 0, -7, -10, 12, 24, 17, 12 |
 
-The bitcrusher uses crow output [quantizer](https://monome.org/docs/crow/reference/#quantize-to-scales) to do distortion. A bitcrush value of 1.0 results in 1 volt per octave. The output voltage will then be quantized to the scale selected with corvus. The first 4 scales are chromatic, major, minor, and minor pentatonic. Scale values can be out of order to create arpeggios, but also scales can be much longer than 12 notes and have note values well outside the range 0 - 12.  
+The bitcrusher uses crow output [quantizer](https://monome.org/docs/crow/reference/#quantize-to-scales) to do distortion. A bitcrush value of 1.0 results in 1 volt per octave. The output voltage will then be quantized to the scale selected with corvus. The first 4 scales are chromatic, major, minor, and minor pentatonic. Scale values can be out of order to create arpeggios and can have note values outside the range 0 - 12.  
 
 Each octave is divided evenly into a number of sections equal to the number of notes in the scale. There are 7 values per scale. For higher values of bitcrush, the shape of the scale is applied to the larger range of voltage. For example, the shape of the stairstep voltage waveform that occurs between 0V and 1V when quantizing to a major scale for a bitcrush value of 1 v/oct would be stretched across the voltage range 0V and 5V if bitcrush is set to 5 v/oct. For this reason, a variety of scales can be used to significantly change the tone of the bitcrushing.  
 
@@ -152,7 +152,7 @@ An amplitude modulation depth of 1 results in an amplitude of ±5 V. Crow hardwa
 
 Mutate is used with bitcrush and corvus. Mutate will multiply all values of the corvus species scale up to a value of +/- 24. At mutate = 1, the values of the corvus scale are unchanged. At mutate = 0, the scale values are evenly distributed across the v/oct range. If mutate multiplies a scale value to above 24, it will start to decrease negatively below 24 by 4 times the rate. Similarly values below -24 will increase positively at 4 times the rate. This creates a lot of variation in the distortion tone when using high mutate values or when modulating mutate. Modulating between -1 and +1 there will be a small change in tone but not much change in distortion. Modulating to values above 1 or below -1 will give dramatically more distortion and interesting tones. Try using LFO to slowly modulate mutate to hear "wavetable" type tones.  
 
-Synth shapes `logarithmic` and `exponential` shapes have unique mutate behavior. This will multiply the absolute value of mutate and the temperament of the quantizer. Temperament is fixed at 12 and mutate can vary between 0 and 5 (or more with modulation). When mutate approaches zero, spike in distortion occurs as the temperament of the quantizer approaches 0. Try modulating mutate through 0 to hear distortion amount swell in and out.  
+Synth shapes `logarithmic` and `exponential` shapes have unique mutate behavior. Usually the temperament of the crow quantizer is 12, but when using logarithmic or exponential shapes, temperament is multiplied by the absolute value of mutate. When mutate approaches zero, spike in distortion occurs as the temperament of the quantizer approaches 0. Try modulating mutate through 0 to hear distortion amount swell in and out.  
 
 ## Synth Shapes
 
